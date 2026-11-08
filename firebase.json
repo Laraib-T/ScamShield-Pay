@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"scamshield-pay","appId":"1:345568752060:android:59143a522a1511a437bbb9","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"scamshield-pay","configurations":{"android":"1:345568752060:android:59143a522a1511a437bbb9","web":"1:345568752060:web:3a699f0110a8216c37bbb9"}}}}}}

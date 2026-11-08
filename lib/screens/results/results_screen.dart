@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+
 import '../../core/theme/app_colors.dart';
 
 class ResultsScreen extends StatefulWidget {
@@ -11,10 +12,9 @@ class ResultsScreen extends StatefulWidget {
 
 class _ResultsScreenState extends State<ResultsScreen>
     with SingleTickerProviderStateMixin {
-
   late AnimationController blinkController;
 
-  String riskLevel = 'High';
+  String riskLevel = 'Uncertain';
 
   @override
   void initState() {
@@ -35,30 +35,31 @@ class _ResultsScreenState extends State<ResultsScreen>
   Color get activeColor {
     if (riskLevel == 'High') return Colors.red;
     if (riskLevel == 'Medium') return Colors.amber;
-    return Colors.green;
+    if (riskLevel == 'Low') return Colors.green;
+    return Colors.blueGrey;
   }
 
   Widget trafficLight(String level, Color color) {
-    bool isActive = riskLevel == level;
+    final bool isActive = riskLevel == level;
 
     return AnimatedBuilder(
       animation: blinkController,
       builder: (context, child) {
+        final double opacity = isActive
+            ? 0.45 + (blinkController.value * 0.55)
+            : 0.15;
+
         return Container(
           height: 55,
           width: 55,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withOpacity(
-              isActive
-                  ? 0.45 + (blinkController.value * 0.55)
-                  : 0.15,
-            ),
+            color: color.withValues(alpha: opacity),
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: color.withOpacity(
-                        0.3 + blinkController.value * 0.5,
+                      color: color.withValues(
+                        alpha: 0.3 + blinkController.value * 0.5,
                       ),
                       blurRadius: 20,
                       spreadRadius: 3,
@@ -69,14 +70,29 @@ class _ResultsScreenState extends State<ResultsScreen>
           child: Icon(
             Icons.circle,
             color: isActive
-                ? Colors.white.withOpacity(
-                    0.5 + blinkController.value * 0.5,
+                ? Colors.white.withValues(
+                    alpha: 0.5 + blinkController.value * 0.5,
                   )
-                : color.withOpacity(0.35),
+                : color.withValues(alpha: 0.35),
             size: 27,
           ),
         );
       },
+    );
+  }
+
+  Widget demoButton(String label, String level, Color color) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          riskLevel = level;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+      ),
+      child: Text(label),
     );
   }
 
@@ -103,7 +119,6 @@ class _ResultsScreenState extends State<ResultsScreen>
         padding: const EdgeInsets.all(22),
         child: Column(
           children: [
-
             const SizedBox(height: 15),
 
             const Text(
@@ -117,7 +132,7 @@ class _ResultsScreenState extends State<ResultsScreen>
 
             const SizedBox(height: 22),
 
-            // TRAFFIC SIGNAL
+            // TRAFFIC LIGHT
             Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -125,7 +140,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 15,
                     offset: const Offset(0, 6),
                   ),
@@ -145,7 +160,9 @@ class _ResultsScreenState extends State<ResultsScreen>
             const SizedBox(height: 22),
 
             Text(
-              '$riskLevel Risk',
+              riskLevel == 'Uncertain'
+                  ? 'Awaiting Analysis'
+                  : '$riskLevel Risk',
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
@@ -156,7 +173,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             const SizedBox(height: 8),
 
             const Text(
-              'Demo risk indicator - not an actual AI result.',
+              'Preview Mode: This is not an actual AI assessment.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppColors.textGrey,
@@ -164,11 +181,11 @@ class _ResultsScreenState extends State<ResultsScreen>
               ),
             ),
 
-            const SizedBox(height: 22),
+            const SizedBox(height: 25),
 
-            // TEST RISK LEVEL
+            // DEMO CONTROLS
             const Text(
-              'Test Traffic Signal',
+              'Traffic Light Preview Controls',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -179,31 +196,18 @@ class _ResultsScreenState extends State<ResultsScreen>
             const SizedBox(height: 12),
 
             Wrap(
+              alignment: WrapAlignment.center,
               spacing: 8,
               children: [
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => riskLevel = 'High');
-                  },
-                  child: const Text('Red'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => riskLevel = 'Medium');
-                  },
-                  child: const Text('Yellow'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => riskLevel = 'Low');
-                  },
-                  child: const Text('Green'),
-                ),
+                demoButton('Red', 'High', Colors.red),
+                demoButton('Yellow', 'Medium', Colors.amber),
+                demoButton('Green', 'Low', Colors.green),
               ],
             ),
 
             const SizedBox(height: 25),
 
+            // RISK SCORE
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -222,11 +226,50 @@ class _ResultsScreenState extends State<ResultsScreen>
                       color: AppColors.darkPurple,
                     ),
                   ),
+
                   SizedBox(height: 10),
+
                   Text(
-                    'Not available yet - waiting for AI analysis.',
+                    'Not available yet. AI analysis is not connected.',
                     style: TextStyle(
                       color: AppColors.textGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 18),
+
+            // ANALYSIS DETAILS
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Security Insights',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: AppColors.darkPurple,
+                    ),
+                  ),
+
+                  SizedBox(height: 10),
+
+                  Text(
+                    'No security insights are available yet. '
+                    'Connect the AI analysis service to receive '
+                    'suspicious signals and safety recommendations.',
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                      height: 1.5,
                     ),
                   ),
                 ],
@@ -261,6 +304,8 @@ class _ResultsScreenState extends State<ResultsScreen>
                 ),
               ),
             ),
+
+            const SizedBox(height: 15),
           ],
         ),
       ),

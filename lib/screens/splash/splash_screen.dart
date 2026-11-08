@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
@@ -46,20 +47,23 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // APP LOGO
             Container(
-              height: 105,
-              width: 105,
+              height: 125,
+              width: 125,
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(32),
               ),
-              child: const Icon(
-                Icons.shield_rounded,
-                size: 65,
-                color: AppColors.primary,
+              child: Image.asset(
+                'assets/images/logo.png',
+                fit: BoxFit.contain,
               ),
             ),
+
             const SizedBox(height: 24),
+
             const Text(
               'ScamShield Pay',
               style: TextStyle(
@@ -68,7 +72,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontWeight: FontWeight.bold,
               ),
             ),
+
             const SizedBox(height: 10),
+
             const Text(
               'Let AI check before you pay',
               style: TextStyle(
@@ -76,7 +82,9 @@ class _SplashScreenState extends State<SplashScreen> {
                 fontSize: 15,
               ),
             ),
+
             const SizedBox(height: 45),
+
             const SizedBox(
               height: 25,
               width: 25,

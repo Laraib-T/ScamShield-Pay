@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../widgets/gradient_button.dart';
+import '../../services/auth_service.dart';
 import '../home/home_screen.dart';
 import 'register_screen.dart';
 
@@ -14,10 +16,14 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final AuthService authService = AuthService();
 
   bool hidePassword = true;
+  bool isLoading = false;
 
-  void login() {
+  Future<void> login() async {
+    if (isLoading) return;
+
     if (emailController.text.trim().isEmpty ||
         passwordController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -28,12 +34,37 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const HomeScreen(),
-      ),
-    );
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await authService.login(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -165,7 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 32),
 
               GradientButton(
-                text: 'Log In',
+                text: isLoading ? 'Logging In...' : 'Log In',
                 onPressed: login,
                 icon: Icons.arrow_forward,
               ),
@@ -181,6 +212,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
+                      if (isLoading) return;
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(

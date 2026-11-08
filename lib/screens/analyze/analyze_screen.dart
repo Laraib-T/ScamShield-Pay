@@ -1,7 +1,10 @@
 
 import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../core/theme/app_colors.dart';
 import '../processing/processing_screen.dart';
 
 class AnalyzeScreen extends StatefulWidget {
@@ -38,25 +41,35 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
         maxWidth: 1200,
       );
 
-      if (image != null) {
-        final bytes = await image.readAsBytes();
+      if (image == null) return;
 
-        if (bytes.length > 5 * 1024 * 1024) {
-          showMessage('Image must be smaller than 5 MB.');
-          return;
-        }
+      final bytes = await image.readAsBytes();
 
-        setState(() {
-          selectedImage = image;
-          imageBytes = bytes;
-        });
+      if (bytes.length > 5 * 1024 * 1024) {
+        showMessage('Image must be smaller than 5 MB.');
+        return;
       }
+
+      setState(() {
+        selectedImage = image;
+        imageBytes = bytes;
+      });
     } catch (e) {
       showMessage('Unable to upload image. Please try again.');
     }
   }
 
   void removeImage() {
+    setState(() {
+      selectedImage = null;
+      imageBytes = null;
+    });
+  }
+
+  void clearAll() {
+    linkController.clear();
+    detailsController.clear();
+
     setState(() {
       selectedImage = null;
       imageBytes = null;
@@ -77,9 +90,9 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     final link = linkController.text.trim();
     final details = detailsController.text.trim();
 
-    if (link.isEmpty && selectedImage == null) {
+    if (link.isEmpty && details.isEmpty && imageBytes == null) {
       showMessage(
-        'Please enter a payment link or upload a screenshot.',
+        'Please enter details, a payment link or upload a screenshot.',
       );
       return;
     }
@@ -90,17 +103,19 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
       if (uri == null ||
           !uri.hasScheme ||
           (uri.scheme != 'https' && uri.scheme != 'http') ||
-          uri.host.isEmpty) {
+          uri.host.isEmpty ||
+          uri.host.contains(' ')) {
         showMessage('Please enter a valid payment link.');
         return;
       }
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    final List<String> inputs = [];
 
-    // Analysis service will be connected in the next step.
+    if (link.isNotEmpty) inputs.add('payment link');
+    if (details.isNotEmpty) inputs.add('seller details');
+    if (imageBytes != null) inputs.add('screenshot');
+
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -108,42 +123,48 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
           borderRadius: BorderRadius.circular(22),
         ),
         title: const Text(
-          'Ready for Analysis!',
+          'Ready for Analysis?',
           style: TextStyle(
             color: darkPurple,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
-          'Your ${link.isNotEmpty ? 'payment link' : 'screenshot'} '
-          'and listing details are ready.',
+          'You have provided: ${inputs.join(', ')}.\n\n'
+          'Continue to the processing screen?',
         ),
         actions: [
-  TextButton(
-    onPressed: () {
-      Navigator.pop(dialogContext);
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+            },
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const ProcessingScreen(),
-        ),
-      );
-    },
-    child: const Text(
-      'Continue',
-      style: TextStyle(color: purple),
-    ),
-  ),
-],
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ProcessingScreen(),
+                ),
+              );
+            },
+            child: const Text(
+              'Continue',
+              style: TextStyle(
+                color: purple,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
-    ).then((_) {
-      if (mounted) {
-        setState(() {
-          isLoading = false;
-        });
-      }
-    });
+    );
   }
 
   @override
@@ -178,6 +199,18 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: clearAll,
+            child: const Text(
+              'Clear',
+              style: TextStyle(
+                color: purple,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
       ),
 
       body: Stack(
@@ -199,11 +232,9 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             top: false,
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(22, 12, 22, 30),
-
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   // TOP ILLUSTRATION
                   Container(
                     height: 145,
@@ -267,7 +298,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
 
                   const SizedBox(height: 10),
 
-                  // PAYMENT LINK FIELD
                   TextField(
                     controller: linkController,
                     keyboardType: TextInputType.url,
@@ -276,6 +306,10 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                       hintStyle: const TextStyle(
                         fontSize: 13,
                         color: Colors.grey,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.link_rounded,
+                        color: purple,
                       ),
                       filled: true,
                       fillColor: Colors.white,
@@ -297,7 +331,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
 
                   const SizedBox(height: 19),
 
-                  // OR DIVIDER
                   const Row(
                     children: [
                       Expanded(child: Divider()),
@@ -318,7 +351,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                   const SizedBox(height: 20),
 
                   const Text(
-                    'Add Listing Details (Optional)',
+                    'Add Listing Details',
                     style: TextStyle(
                       color: darkPurple,
                       fontSize: 16,
@@ -326,9 +359,18 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                     ),
                   ),
 
+                  const SizedBox(height: 5),
+
+                  const Text(
+                    'Describe the seller, product or payment request.',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+
                   const SizedBox(height: 10),
 
-                  // DETAILS FIELD
                   TextField(
                     controller: detailsController,
                     maxLines: 4,

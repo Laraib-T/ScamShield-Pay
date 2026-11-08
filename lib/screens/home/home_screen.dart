@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../widgets/gradient_button.dart';
+import '../../widgets/app_bottom_nav.dart';
 import '../analyze/analyze_screen.dart';
+import '../history/history_screen.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -18,12 +21,29 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  void openHistory(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HistoryScreen(),
+      ),
+    );
+  }
+
+  void openProfile(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ProfileScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
 
-      // MAIN BODY
       body: LayoutBuilder(
         builder: (context, constraints) {
           final appWidth = constraints.maxWidth > 480
@@ -38,24 +58,19 @@ class HomeScreen extends StatelessWidget {
               child: SizedBox(
                 width: appWidth,
                 height: constraints.maxHeight,
-
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-
-                    // GRADIENT BACKGROUND
                     Container(
                       decoration: const BoxDecoration(
                         gradient: AppColors.backgroundGradient,
                       ),
                     ),
 
-                    // CURVED BACKGROUND
                     CustomPaint(
                       painter: HomeBackgroundPainter(),
                     ),
 
-                    // FADED SHIELD WATERMARK
                     Positioned(
                       top: 145,
                       right: -35,
@@ -66,17 +81,14 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
 
-                    // HOME CONTENT
                     SafeArea(
                       child: SingleChildScrollView(
                         padding: const EdgeInsets.fromLTRB(
                           22, 12, 22, 25,
                         ),
-
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
                             // TOP BAR
                             Row(
                               children: [
@@ -177,7 +189,6 @@ class HomeScreen extends StatelessWidget {
                                 ),
                                 borderRadius: BorderRadius.circular(25),
                               ),
-
                               child: Stack(
                                 alignment: Alignment.center,
                                 children: [
@@ -230,19 +241,20 @@ class HomeScreen extends StatelessWidget {
                             GradientButton(
                               text: 'Check Before You Pay',
                               icon: Icons.arrow_forward_rounded,
-                             onPressed: () {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const AnalyzeScreen(),
-    ),
-  );
-},
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AnalyzeScreen(),
+                                  ),
+                                );
+                              },
                             ),
 
                             const SizedBox(height: 22),
 
-                            // TWO OPTION CARDS
+                            // OPTION CARDS
                             Row(
                               children: [
                                 Expanded(
@@ -250,9 +262,12 @@ class HomeScreen extends StatelessWidget {
                                     icon: Icons.link_rounded,
                                     title: 'Paste Listing /\nPayment Link',
                                     onTap: () {
-                                      showMessage(
+                                      Navigator.push(
                                         context,
-                                        'Paste your payment link',
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const AnalyzeScreen(),
+                                        ),
                                       );
                                     },
                                   ),
@@ -265,9 +280,12 @@ class HomeScreen extends StatelessWidget {
                                     icon: Icons.image_rounded,
                                     title: 'Upload\nScreenshot',
                                     onTap: () {
-                                      showMessage(
+                                      Navigator.push(
                                         context,
-                                        'Select a screenshot',
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const AnalyzeScreen(),
+                                        ),
                                       );
                                     },
                                   ),
@@ -293,10 +311,7 @@ class HomeScreen extends StatelessWidget {
 
                                 TextButton(
                                   onPressed: () {
-                                    showMessage(
-                                      context,
-                                      'Scan history coming soon',
-                                    );
+                                    openHistory(context);
                                   },
                                   child: const Text(
                                     'View All  ›',
@@ -317,8 +332,7 @@ class HomeScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(17),
                               decoration: BoxDecoration(
                                 color: Colors.white.withOpacity(0.95),
-                                borderRadius:
-                                    BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
                                     color: AppColors.purple
@@ -328,13 +342,11 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-
                               child: const Row(
                                 children: [
                                   CircleAvatar(
                                     radius: 27,
-                                    backgroundColor:
-                                        AppColors.lavender,
+                                    backgroundColor: AppColors.lavender,
                                     child: Icon(
                                       Icons.shopping_bag_rounded,
                                       color: AppColors.purple,
@@ -353,8 +365,7 @@ class HomeScreen extends StatelessWidget {
                                           'No scans yet',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            color:
-                                                AppColors.darkPurple,
+                                            color: AppColors.darkPurple,
                                           ),
                                         ),
 
@@ -364,8 +375,7 @@ class HomeScreen extends StatelessWidget {
                                           'Your recent scans will appear here.',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color:
-                                                AppColors.textGrey,
+                                            color: AppColors.textGrey,
                                           ),
                                         ),
                                       ],
@@ -388,12 +398,11 @@ class HomeScreen extends StatelessWidget {
         },
       ),
 
-      // FIXED BOTTOM NAVIGATION
+      // BOTTOM NAVIGATION
       bottomNavigationBar: SafeArea(
         top: false,
         child: SizedBox(
           height: 76,
-          width: double.infinity,
           child: LayoutBuilder(
             builder: (context, constraints) {
               final navWidth = constraints.maxWidth > 480
@@ -403,42 +412,23 @@ class HomeScreen extends StatelessWidget {
               return Center(
                 child: SizedBox(
                   width: navWidth,
-                  child: BottomNavigationBar(
-                    backgroundColor: Colors.white,
-                    elevation: 8,
-                    selectedItemColor: AppColors.purple,
-                    unselectedItemColor: AppColors.textGrey,
+                  child: AppBottomNav(
                     currentIndex: 0,
-                    type: BottomNavigationBarType.fixed,
-
                     onTap: (index) {
                       if (index == 1) {
-                        showMessage(
+                        Navigator.push(
                           context,
-                          'History screen coming soon',
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const AnalyzeScreen(),
+                          ),
                         );
                       } else if (index == 2) {
-                        showMessage(
-                          context,
-                          'Settings screen coming soon',
-                        );
+                        openHistory(context);
+                      } else if (index == 3) {
+                        openProfile(context);
                       }
                     },
-
-                    items: const [
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.home_rounded),
-                        label: 'Home',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.history_rounded),
-                        label: 'History',
-                      ),
-                      BottomNavigationBarItem(
-                        icon: Icon(Icons.settings_rounded),
-                        label: 'Settings',
-                      ),
-                    ],
                   ),
                 ),
               );
@@ -460,7 +450,6 @@ class HomeScreen extends StatelessWidget {
       child: Container(
         height: 125,
         padding: const EdgeInsets.all(12),
-
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.96),
           borderRadius: BorderRadius.circular(22),
@@ -472,7 +461,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
-
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

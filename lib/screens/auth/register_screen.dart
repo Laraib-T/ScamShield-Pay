@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../widgets/gradient_button.dart';
+import '../../services/auth_service.dart';
 import '../home/home_screen.dart';
 import 'login_screen.dart';
 
@@ -17,10 +19,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
+  final AuthService authService = AuthService();
+
   bool hidePassword = true;
   bool hideConfirmPassword = true;
+  bool isLoading = false;
 
-  void createAccount() {
+  Future<void> createAccount() async {
+    if (isLoading) return;
+
     final name = nameController.text.trim();
     final email = emailController.text.trim();
     final password = passwordController.text;
@@ -49,12 +56,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const HomeScreen(),
-      ),
-    );
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final user = await authService.register(
+        email: email,
+        password: password,
+      );
+
+      await user?.updateDisplayName(name);
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const HomeScreen(),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      showMessage(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
   }
 
   void showMessage(String message) {
@@ -139,6 +170,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: AppColors.darkPurple,
                 ),
               ),
+
               const SizedBox(height: 8),
 
               TextField(
@@ -162,6 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: AppColors.darkPurple,
                 ),
               ),
+
               const SizedBox(height: 8),
 
               TextField(
@@ -185,6 +218,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: AppColors.darkPurple,
                 ),
               ),
+
               const SizedBox(height: 8),
 
               TextField(
@@ -221,6 +255,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   color: AppColors.darkPurple,
                 ),
               ),
+
               const SizedBox(height: 8),
 
               TextField(
@@ -251,7 +286,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const SizedBox(height: 28),
 
               GradientButton(
-                text: 'Create Account',
+                text: isLoading
+                    ? 'Creating Account...'
+                    : 'Create Account',
                 onPressed: createAccount,
                 icon: Icons.arrow_forward,
               ),
@@ -269,6 +306,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   GestureDetector(
                     onTap: () {
+                      if (isLoading) return;
+
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
