@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import '../core/theme/app_colors.dart';
 
@@ -17,20 +18,15 @@ class GradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 56,
+      height: 54,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            AppColors.primary,
-            Color(0xFF9870A8),
-          ],
-        ),
+        gradient: AppColors.primaryGradient,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withOpacity(0.22),
-            blurRadius: 15,
-            offset: const Offset(0, 7),
+            color: AppColors.purple.withOpacity(0.25),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
           ),
         ],
       ),

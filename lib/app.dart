@@ -1,6 +1,11 @@
+
 import 'package:flutter/material.dart';
+
 import 'core/theme/app_theme.dart';
+import 'core/constants/app_constants.dart';
+
 import 'screens/splash/splash_screen.dart';
+import 'screens/home/home_screen.dart';
 
 class ScamShieldApp extends StatelessWidget {
   const ScamShieldApp({super.key});
@@ -9,9 +14,17 @@ class ScamShieldApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'ScamShield Pay',
+      title: AppConstants.appName,
       theme: AppTheme.lightTheme,
-      home: const SplashScreen(),
+      initialRoute: AppConstants.splashRoute,
+
+      routes: {
+        AppConstants.splashRoute: (context) =>
+            const SplashScreen(),
+
+        AppConstants.homeRoute: (context) =>
+            const HomeScreen(),
+      },
     );
   }
 }

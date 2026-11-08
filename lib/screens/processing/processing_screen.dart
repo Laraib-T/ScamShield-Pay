@@ -1,5 +1,7 @@
+
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../results/results_screen.dart';
 
 class ProcessingScreen extends StatefulWidget {
   const ProcessingScreen({super.key});
@@ -9,6 +11,26 @@ class ProcessingScreen extends StatefulWidget {
 }
 
 class _ProcessingScreenState extends State<ProcessingScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    startAnalysis();
+  }
+
+  void startAnalysis() async {
+    await Future.delayed(const Duration(seconds: 4));
+
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const ResultsScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

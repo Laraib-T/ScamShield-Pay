@@ -1,0 +1,269 @@
+
+import 'package:flutter/material.dart';
+import '../../core/theme/app_colors.dart';
+
+class ResultsScreen extends StatefulWidget {
+  const ResultsScreen({super.key});
+
+  @override
+  State<ResultsScreen> createState() => _ResultsScreenState();
+}
+
+class _ResultsScreenState extends State<ResultsScreen>
+    with SingleTickerProviderStateMixin {
+
+  late AnimationController blinkController;
+
+  String riskLevel = 'High';
+
+  @override
+  void initState() {
+    super.initState();
+
+    blinkController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    blinkController.dispose();
+    super.dispose();
+  }
+
+  Color get activeColor {
+    if (riskLevel == 'High') return Colors.red;
+    if (riskLevel == 'Medium') return Colors.amber;
+    return Colors.green;
+  }
+
+  Widget trafficLight(String level, Color color) {
+    bool isActive = riskLevel == level;
+
+    return AnimatedBuilder(
+      animation: blinkController,
+      builder: (context, child) {
+        return Container(
+          height: 55,
+          width: 55,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: color.withOpacity(
+              isActive
+                  ? 0.45 + (blinkController.value * 0.55)
+                  : 0.15,
+            ),
+            boxShadow: isActive
+                ? [
+                    BoxShadow(
+                      color: color.withOpacity(
+                        0.3 + blinkController.value * 0.5,
+                      ),
+                      blurRadius: 20,
+                      spreadRadius: 3,
+                    ),
+                  ]
+                : [],
+          ),
+          child: Icon(
+            Icons.circle,
+            color: isActive
+                ? Colors.white.withOpacity(
+                    0.5 + blinkController.value * 0.5,
+                  )
+                : color.withOpacity(0.35),
+            size: 27,
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: const Text(
+          'Analysis Results',
+          style: TextStyle(
+            color: AppColors.darkPurple,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(22),
+        child: Column(
+          children: [
+
+            const SizedBox(height: 15),
+
+            const Text(
+              'Your Security Report',
+              style: TextStyle(
+                fontSize: 23,
+                fontWeight: FontWeight.bold,
+                color: AppColors.darkPurple,
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            // TRAFFIC SIGNAL
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFF29252E),
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  trafficLight('High', Colors.red),
+                  const SizedBox(height: 14),
+                  trafficLight('Medium', Colors.amber),
+                  const SizedBox(height: 14),
+                  trafficLight('Low', Colors.green),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            Text(
+              '$riskLevel Risk',
+              style: TextStyle(
+                fontSize: 25,
+                fontWeight: FontWeight.bold,
+                color: activeColor,
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            const Text(
+              'Demo risk indicator - not an actual AI result.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppColors.textGrey,
+                fontSize: 12,
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            // TEST RISK LEVEL
+            const Text(
+              'Test Traffic Signal',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.darkPurple,
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Wrap(
+              spacing: 8,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() => riskLevel = 'High');
+                  },
+                  child: const Text('Red'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() => riskLevel = 'Medium');
+                  },
+                  child: const Text('Yellow'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() => riskLevel = 'Low');
+                  },
+                  child: const Text('Green'),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 25),
+
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Risk Score',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: AppColors.darkPurple,
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Not available yet - waiting for AI analysis.',
+                    style: TextStyle(
+                      color: AppColors.textGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.popUntil(
+                    context,
+                    (route) => route.isFirst,
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  'Back to Home',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

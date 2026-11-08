@@ -1,204 +1,19 @@
-import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/constants/app_constants.dart';
 
-class HomeScreen extends StatefulWidget {
+import 'package:flutter/material.dart';
+
+import '../../core/theme/app_colors.dart';
+import '../../widgets/gradient_button.dart';
+import '../analyze/analyze_screen.dart';
+
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int selectedIndex = 0;
-
-  void showMessage(String message) {
+  void showMessage(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
-  }
-
-  Widget sectionTitle(String title, {String? action}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 19,
-            fontWeight: FontWeight.bold,
-            color: AppColors.darkPurple,
-          ),
-        ),
-        if (action != null)
-          TextButton(
-            onPressed: () => showMessage('History will be available soon.'),
-            child: Text(
-              action,
-              style: const TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget featureCard({
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color iconColor,
-    required VoidCallback onTap,
-  }) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(22),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.primary.withOpacity(0.07),
-                blurRadius: 15,
-                offset: const Offset(0, 5),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 46,
-                width: 46,
-                decoration: BoxDecoration(
-                  color: iconColor.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Icon(icon, color: iconColor, size: 25),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                title,
-                style: const TextStyle(
-                  color: AppColors.darkPurple,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  color: AppColors.textGrey,
-                  fontSize: 11,
-                  height: 1.4,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget recentScan({
-    required String name,
-    required String description,
-    required int score,
-    required bool safe,
-    required IconData productIcon,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(13),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(19),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 52,
-            width: 52,
-            decoration: BoxDecoration(
-              color: AppColors.lavender.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: Icon(
-              productIcon,
-              color: AppColors.primary,
-              size: 27,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  name,
-                  style: const TextStyle(
-                    color: AppColors.darkPurple,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  description,
-                  style: const TextStyle(
-                    color: AppColors.textGrey,
-                    fontSize: 11,
-                  ),
-                ),
-                const SizedBox(height: 7),
-                Text(
-                  safe ? 'Low Risk' : 'High Risk',
-                  style: TextStyle(
-                    color: safe ? AppColors.success : AppColors.danger,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Column(
-            children: [
-              Text(
-                '$score',
-                style: TextStyle(
-                  fontSize: 21,
-                  fontWeight: FontWeight.bold,
-                  color: safe ? AppColors.success : AppColors.danger,
-                ),
-              ),
-              const Text(
-                'Trust Score',
-                style: TextStyle(
-                  color: AppColors.textGrey,
-                  fontSize: 9,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(width: 7),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.textGrey,
-          ),
-        ],
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.darkPurple,
+        behavior: SnackBarBehavior.floating,
       ),
     );
   }
@@ -207,368 +22,531 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(22, 15, 22, 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                children: [
-                  Container(
-                    height: 43,
-                    width: 43,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          AppColors.primary,
-                          Color(0xFF9870A8),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(
-                      Icons.shield_rounded,
-                      color: Colors.white,
-                      size: 27,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  const Expanded(
-                    child: Text(
-                      AppConstants.appName,
-                      style: TextStyle(
-                        color: AppColors.darkPurple,
-                        fontSize: 19,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    height: 43,
-                    width: 43,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: IconButton(
-                      onPressed: () =>
-                          showMessage('No new notifications.'),
-                      icon: const Icon(
-                        Icons.notifications_none_rounded,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
 
-              const SizedBox(height: 30),
+      // MAIN BODY
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final appWidth = constraints.maxWidth > 480
+              ? 480.0
+              : constraints.maxWidth;
 
-              // Welcome heading
-              const Text(
-                'Stay Safe Before\\nYou Pay!',
-                style: TextStyle(
-                  color: AppColors.darkPurple,
-                  fontSize: 30,
-                  height: 1.2,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+          return Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: AppColors.background,
+            child: Center(
+              child: SizedBox(
+                width: appWidth,
+                height: constraints.maxHeight,
 
-              const SizedBox(height: 10),
-
-              const Text(
-                'Shop online with confidence. Let AI check\\n'
-                'the seller before you make a payment.',
-                style: TextStyle(
-                  color: AppColors.textGrey,
-                  fontSize: 13,
-                  height: 1.6,
-                ),
-              ),
-
-              const SizedBox(height: 22),
-
-              // Main illustration-style banner
-              Container(
-                height: 190,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFEBD9F2),
-                      Color(0xFFF8E3F1),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(25),
-                ),
                 child: Stack(
+                  fit: StackFit.expand,
                   children: [
+
+                    // GRADIENT BACKGROUND
+                    Container(
+                      decoration: const BoxDecoration(
+                        gradient: AppColors.backgroundGradient,
+                      ),
+                    ),
+
+                    // CURVED BACKGROUND
+                    CustomPaint(
+                      painter: HomeBackgroundPainter(),
+                    ),
+
+                    // FADED SHIELD WATERMARK
                     Positioned(
-                      right: 20,
-                      top: 12,
+                      top: 145,
+                      right: -35,
                       child: Icon(
-                        Icons.auto_awesome,
-                        color: AppColors.primary.withOpacity(0.4),
-                        size: 25,
+                        Icons.shield_rounded,
+                        size: 230,
+                        color: AppColors.purple.withOpacity(0.07),
                       ),
                     ),
-                    Positioned(
-                      right: 35,
-                      bottom: 10,
-                      child: Icon(
-                        Icons.circle,
-                        color: Colors.white.withOpacity(0.5),
-                        size: 35,
-                      ),
-                    ),
-                    Positioned(
-                      right: 45,
-                      top: 25,
-                      child: Container(
-                        height: 125,
-                        width: 125,
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.7),
-                          borderRadius: BorderRadius.circular(35),
+
+                    // HOME CONTENT
+                    SafeArea(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(
+                          22, 12, 22, 25,
                         ),
-                        child: const Icon(
-                          Icons.verified_user_rounded,
-                          color: AppColors.primary,
-                          size: 75,
+
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            // TOP BAR
+                            Row(
+                              children: [
+                                Container(
+                                  height: 46,
+                                  width: 46,
+                                  decoration: const BoxDecoration(
+                                    gradient: AppColors.primaryGradient,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.shield_rounded,
+                                        color: Colors.white,
+                                        size: 38,
+                                      ),
+                                      Icon(
+                                        Icons.shopping_cart_rounded,
+                                        color: AppColors.darkPurple,
+                                        size: 17,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(width: 10),
+
+                                const Expanded(
+                                  child: Text(
+                                    'ScamShield Pay',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.darkPurple,
+                                    ),
+                                  ),
+                                ),
+
+                                IconButton(
+                                  onPressed: () {
+                                    showMessage(
+                                      context,
+                                      'No new notifications',
+                                    );
+                                  },
+                                  icon: const Icon(
+                                    Icons.notifications_none_rounded,
+                                    color: AppColors.darkPurple,
+                                    size: 27,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 35),
+
+                            // MAIN HEADING
+                            const Text(
+                              'Let AI Check\nBefore You Pay!',
+                              style: TextStyle(
+                                fontSize: 30,
+                                height: 1.2,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.darkPurple,
+                                letterSpacing: -0.7,
+                              ),
+                            ),
+
+                            const SizedBox(height: 12),
+
+                            const Text(
+                              'Shop smart. Stay protected.\n'
+                              'Pay with confidence.',
+                              style: TextStyle(
+                                fontSize: 14,
+                                height: 1.5,
+                                color: AppColors.textGrey,
+                              ),
+                            ),
+
+                            const SizedBox(height: 25),
+
+                            // HERO ILLUSTRATION
+                            Container(
+                              height: 155,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFFF9E5F5),
+                                    Color(0xFFEAD7F5),
+                                    Color(0xFFFFEBD9),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+
+                              child: Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  Positioned(
+                                    top: 12,
+                                    right: 20,
+                                    child: Icon(
+                                      Icons.auto_awesome,
+                                      color: AppColors.purple
+                                          .withOpacity(0.5),
+                                      size: 25,
+                                    ),
+                                  ),
+
+                                  const Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.shopping_bag_rounded,
+                                        size: 85,
+                                        color: Color(0xFFA66BB9),
+                                      ),
+                                      SizedBox(width: 12),
+                                      Icon(
+                                        Icons.verified_user_rounded,
+                                        size: 90,
+                                        color: AppColors.darkPurple,
+                                      ),
+                                    ],
+                                  ),
+
+                                  Positioned(
+                                    bottom: 15,
+                                    left: 18,
+                                    child: Icon(
+                                      Icons.spa_rounded,
+                                      color: AppColors.purple
+                                          .withOpacity(0.4),
+                                      size: 32,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 25),
+
+                            // MAIN BUTTON
+                            GradientButton(
+                              text: 'Check Before You Pay',
+                              icon: Icons.arrow_forward_rounded,
+                             onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const AnalyzeScreen(),
+    ),
+  );
+},
+                            ),
+
+                            const SizedBox(height: 22),
+
+                            // TWO OPTION CARDS
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: optionCard(
+                                    icon: Icons.link_rounded,
+                                    title: 'Paste Listing /\nPayment Link',
+                                    onTap: () {
+                                      showMessage(
+                                        context,
+                                        'Paste your payment link',
+                                      );
+                                    },
+                                  ),
+                                ),
+
+                                const SizedBox(width: 13),
+
+                                Expanded(
+                                  child: optionCard(
+                                    icon: Icons.image_rounded,
+                                    title: 'Upload\nScreenshot',
+                                    onTap: () {
+                                      showMessage(
+                                        context,
+                                        'Select a screenshot',
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 30),
+
+                            // RECENT SCANS HEADER
+                            Row(
+                              mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Recent Scans',
+                                  style: TextStyle(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.darkPurple,
+                                  ),
+                                ),
+
+                                TextButton(
+                                  onPressed: () {
+                                    showMessage(
+                                      context,
+                                      'Scan history coming soon',
+                                    );
+                                  },
+                                  child: const Text(
+                                    'View All  ›',
+                                    style: TextStyle(
+                                      color: AppColors.purple,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 8),
+
+                            // EMPTY HISTORY CARD
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(17),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.95),
+                                borderRadius:
+                                    BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.purple
+                                        .withOpacity(0.08),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                ],
+                              ),
+
+                              child: const Row(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 27,
+                                    backgroundColor:
+                                        AppColors.lavender,
+                                    child: Icon(
+                                      Icons.shopping_bag_rounded,
+                                      color: AppColors.purple,
+                                      size: 28,
+                                    ),
+                                  ),
+
+                                  SizedBox(width: 12),
+
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'No scans yet',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color:
+                                                AppColors.darkPurple,
+                                          ),
+                                        ),
+
+                                        SizedBox(height: 5),
+
+                                        Text(
+                                          'Your recent scans will appear here.',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color:
+                                                AppColors.textGrey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+                          ],
                         ),
-                      ),
-                    ),
-                    const Positioned(
-                      left: 20,
-                      top: 37,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Shop Smart,',
-                            style: TextStyle(
-                              color: AppColors.darkPurple,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            'Stay Protected!',
-                            style: TextStyle(
-                              color: AppColors.primary,
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            'Your AI safety\\ncompanion.',
-                            style: TextStyle(
-                              color: AppColors.textGrey,
-                              fontSize: 11,
-                              height: 1.5,
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-
-              const SizedBox(height: 20),
-
-              // Analyze button
-              Container(
-                width: double.infinity,
-                height: 57,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      AppColors.primary,
-                      Color(0xFF9870A8),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withOpacity(0.2),
-                      blurRadius: 13,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
-                  onPressed: () => showMessage(
-                    'Analyze screen will be connected next.',
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    shadowColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                  ),
-                  icon: const Icon(
-                    Icons.search_rounded,
-                    color: Colors.white,
-                  ),
-                  label: const Text(
-                    'Analyze Now',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 28),
-
-              sectionTitle('Start Checking'),
-
-              const SizedBox(height: 13),
-
-              Row(
-                children: [
-                  featureCard(
-                    title: 'Paste a Link',
-                    subtitle: 'Check a seller or\\npayment link',
-                    icon: Icons.link_rounded,
-                    iconColor: AppColors.primary,
-                    onTap: () => showMessage(
-                      'Link analysis will be connected next.',
-                    ),
-                  ),
-                  const SizedBox(width: 13),
-                  featureCard(
-                    title: 'Upload Screenshot',
-                    subtitle: 'Check seller chats\\nand product details',
-                    icon: Icons.image_outlined,
-                    iconColor: AppColors.danger,
-                    onTap: () => showMessage(
-                      'Screenshot analysis will be connected next.',
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 28),
-
-              sectionTitle(
-                AppConstants.recentScans,
-                action: 'See All',
-              ),
-
-              const SizedBox(height: 8),
-
-              recentScan(
-                name: 'Wireless Headphones',
-                description: 'Example scan · 2 hours ago',
-                score: 92,
-                safe: true,
-                productIcon: Icons.headphones_rounded,
-              ),
-
-              recentScan(
-                name: 'Designer Handbag',
-                description: 'Example scan · Yesterday',
-                score: 32,
-                safe: false,
-                productIcon: Icons.shopping_bag_outlined,
-              ),
-
-              const SizedBox(height: 15),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
 
-      // Bottom Navigation
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withOpacity(0.07),
-              blurRadius: 15,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 15,
-              vertical: 8,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                navItem(Icons.home_rounded, 'Home', 0),
-                navItem(Icons.history_rounded, 'History', 1),
-                navItem(Icons.settings_outlined, 'Settings', 2),
-              ],
-            ),
+      // FIXED BOTTOM NAVIGATION
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: SizedBox(
+          height: 76,
+          width: double.infinity,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final navWidth = constraints.maxWidth > 480
+                  ? 480.0
+                  : constraints.maxWidth;
+
+              return Center(
+                child: SizedBox(
+                  width: navWidth,
+                  child: BottomNavigationBar(
+                    backgroundColor: Colors.white,
+                    elevation: 8,
+                    selectedItemColor: AppColors.purple,
+                    unselectedItemColor: AppColors.textGrey,
+                    currentIndex: 0,
+                    type: BottomNavigationBarType.fixed,
+
+                    onTap: (index) {
+                      if (index == 1) {
+                        showMessage(
+                          context,
+                          'History screen coming soon',
+                        );
+                      } else if (index == 2) {
+                        showMessage(
+                          context,
+                          'Settings screen coming soon',
+                        );
+                      }
+                    },
+
+                    items: const [
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.home_rounded),
+                        label: 'Home',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.history_rounded),
+                        label: 'History',
+                      ),
+                      BottomNavigationBarItem(
+                        icon: Icon(Icons.settings_rounded),
+                        label: 'Settings',
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget navItem(IconData icon, String label, int index) {
-    final selected = selectedIndex == index;
-
+  // REUSABLE OPTION CARD
+  Widget optionCard({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
-      onTap: () {
-        setState(() => selectedIndex = index);
-        if (index != 0) {
-          showMessage('$label screen will be connected later.');
-        }
-      },
+      onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 8,
-        ),
+        height: 125,
+        padding: const EdgeInsets.all(12),
+
         decoration: BoxDecoration(
-          color: selected
-              ? AppColors.lavender.withOpacity(0.55)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(15),
+          color: Colors.white.withOpacity(0.96),
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.purple.withOpacity(0.09),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
+
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
               icon,
-              color: selected
-                  ? AppColors.primary
-                  : AppColors.textGrey,
-              size: 23,
+              size: 32,
+              color: AppColors.purple,
             ),
-            const SizedBox(height: 4),
+
+            const SizedBox(height: 12),
+
             Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: selected
-                    ? FontWeight.bold
-                    : FontWeight.normal,
-                color: selected
-                    ? AppColors.primary
-                    : AppColors.textGrey,
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textDark,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+                height: 1.4,
               ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+// CURVED BACKGROUND PAINTER
+class HomeBackgroundPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final pinkPaint = Paint()
+      ..color = const Color(0x30E8B6E9)
+      ..style = PaintingStyle.fill;
+
+    final purplePaint = Paint()
+      ..color = const Color(0x35C9A3E5)
+      ..style = PaintingStyle.fill;
+
+    final path1 = Path()
+      ..moveTo(0, 0)
+      ..lineTo(size.width * 0.65, 0)
+      ..quadraticBezierTo(
+        size.width * 0.48,
+        70,
+        size.width * 0.18,
+        95,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.05,
+        105,
+        0,
+        155,
+      )
+      ..close();
+
+    final path2 = Path()
+      ..moveTo(size.width, size.height)
+      ..lineTo(size.width * 0.35, size.height)
+      ..quadraticBezierTo(
+        size.width * 0.65,
+        size.height - 55,
+        size.width,
+        size.height - 135,
+      )
+      ..close();
+
+    canvas.drawPath(path1, pinkPaint);
+    canvas.drawPath(path2, purplePaint);
+  }
+
+  @override
+  bool shouldRepaint(covariant HomeBackgroundPainter oldDelegate) {
+    return false;
   }
 }
