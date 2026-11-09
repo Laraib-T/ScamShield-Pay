@@ -147,10 +147,27 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             onPressed: () {
               Navigator.pop(dialogContext);
 
+                           final parts = <String>[];
+              if (link.isNotEmpty) parts.add('Payment/listing link: $link');
+              if (details.isNotEmpty) {
+                parts.add('Seller/listing details: $details');
+              }
+
+              final name = (selectedImage?.name ?? '').toLowerCase();
+              final mediaType = name.endsWith('.png')
+                  ? 'image/png'
+                  : name.endsWith('.webp')
+                      ? 'image/webp'
+                      : 'image/jpeg';
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProcessingScreen(),
+                  builder: (context) => ProcessingScreen(
+                    text: parts.join('\n'),
+                    imageBytes: imageBytes,
+                    mediaType: mediaType,
+                  ),
                 ),
               );
             },

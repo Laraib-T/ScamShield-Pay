@@ -1,10 +1,12 @@
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../models/scan_result.dart';
 
 class ResultsScreen extends StatefulWidget {
-  const ResultsScreen({super.key});
+  final ScanResult result;
+
+  const ResultsScreen({super.key, required this.result});
 
   @override
   State<ResultsScreen> createState() => _ResultsScreenState();
@@ -14,7 +16,8 @@ class _ResultsScreenState extends State<ResultsScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController blinkController;
 
-  String riskLevel = 'Uncertain';
+  ScanResult get result => widget.result;
+  String get riskLevel => result.riskLevel;
 
   @override
   void initState() {
@@ -34,9 +37,20 @@ class _ResultsScreenState extends State<ResultsScreen>
 
   Color get activeColor {
     if (riskLevel == 'High') return Colors.red;
-    if (riskLevel == 'Medium') return Colors.amber;
+    if (riskLevel == 'Medium') return Colors.amber.shade700;
     if (riskLevel == 'Low') return Colors.green;
     return Colors.blueGrey;
+  }
+
+  Color severityColor(String severity) {
+    switch (severity) {
+      case 'high':
+        return Colors.red;
+      case 'medium':
+        return Colors.orange;
+      default:
+        return Colors.blueGrey;
+    }
   }
 
   Widget trafficLight(String level, Color color) {
@@ -45,9 +59,8 @@ class _ResultsScreenState extends State<ResultsScreen>
     return AnimatedBuilder(
       animation: blinkController,
       builder: (context, child) {
-        final double opacity = isActive
-            ? 0.45 + (blinkController.value * 0.55)
-            : 0.15;
+        final double opacity =
+            isActive ? 0.45 + (blinkController.value * 0.55) : 0.15;
 
         return Container(
           height: 55,
@@ -81,18 +94,189 @@ class _ResultsScreenState extends State<ResultsScreen>
     );
   }
 
-  Widget demoButton(String label, String level, Color color) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          riskLevel = level;
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
+  Widget sectionCard({
+    required String title,
+    required Widget child,
+    Color? borderColor,
+  }) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: borderColor == null
+            ? null
+            : Border.all(color: borderColor, width: 1.5),
       ),
-      child: Text(label),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: AppColors.darkPurple,
+            ),
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
+    );
+  }
+
+  Widget flagTile(FlagItem flag, Color color, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 22),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  flag.title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.darkPurple,
+                  ),
+                ),
+                if (flag.detail.isNotEmpty) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    flag.detail,
+                    style: const TextStyle(
+                      color: AppColors.textGrey,
+                      height: 1.4,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget trustScoreCard() {
+    return sectionCard(
+      title: 'Trust Score',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${result.trustScore}',
+                style: TextStyle(
+                  fontSize: 46,
+                  fontWeight: FontWeight.bold,
+                  color: activeColor,
+                ),
+              ),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 9, left: 4),
+                child: Text(
+                  '/ 100',
+                  style: TextStyle(color: AppColors.textGrey, fontSize: 16),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: result.trustScore / 100,
+              minHeight: 10,
+              color: activeColor,
+              backgroundColor: activeColor.withValues(alpha: 0.15),
+            ),
+          ),
+          if (result.summary.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Text(
+              result.summary,
+              style: const TextStyle(
+                color: AppColors.textGrey,
+                height: 1.5,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  void startPayment() {
+    // Agla step: yahan Braintree/PayPal checkout screen khulegi
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Secure checkout will be connected in the next step.'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Widget paymentButton() {
+    final bool canPay = result.canPay;
+
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 55,
+          child: ElevatedButton.icon(
+            onPressed: canPay ? startPayment : null,
+            icon: Icon(
+              canPay ? Icons.lock_open_rounded : Icons.lock_rounded,
+            ),
+            label: Text(
+              canPay ? 'Continue to Secure Payment' : 'Payment Locked',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              disabledBackgroundColor: Colors.grey.shade300,
+              disabledForegroundColor: Colors.grey.shade600,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+          ),
+        ),
+        if (!canPay)
+          const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Text(
+              'We recommend not paying this seller, so payment is disabled for your safety.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textGrey, fontSize: 12),
+            ),
+          ),
+        if (canPay && riskLevel == 'Medium')
+          const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: Text(
+              'Some warning signs were found. Verify the seller before paying.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.textGrey, fontSize: 12),
+            ),
+          ),
+      ],
     );
   }
 
@@ -100,7 +284,6 @@ class _ResultsScreenState extends State<ResultsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
@@ -114,13 +297,11 @@ class _ResultsScreenState extends State<ResultsScreen>
         ),
         centerTitle: true,
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(22),
         child: Column(
           children: [
             const SizedBox(height: 15),
-
             const Text(
               'Your Security Report',
               style: TextStyle(
@@ -129,7 +310,6 @@ class _ResultsScreenState extends State<ResultsScreen>
                 color: AppColors.darkPurple,
               ),
             ),
-
             const SizedBox(height: 22),
 
             // TRAFFIC LIGHT
@@ -160,151 +340,117 @@ class _ResultsScreenState extends State<ResultsScreen>
             const SizedBox(height: 22),
 
             Text(
-              riskLevel == 'Uncertain'
-                  ? 'Awaiting Analysis'
-                  : '$riskLevel Risk',
+              '$riskLevel Risk',
               style: TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.bold,
                 color: activeColor,
               ),
             ),
-
-            const SizedBox(height: 8),
-
+            const SizedBox(height: 4),
             const Text(
-              'Preview Mode: This is not an actual AI assessment.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textGrey,
-                fontSize: 12,
-              ),
+              'AI estimate, not a guarantee.',
+              style: TextStyle(color: AppColors.textGrey, fontSize: 12),
             ),
 
-            const SizedBox(height: 25),
+            const SizedBox(height: 24),
 
-            // DEMO CONTROLS
-            const Text(
-              'Traffic Light Preview Controls',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.darkPurple,
-              ),
-            ),
+            trustScoreCard(),
 
-            const SizedBox(height: 12),
-
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              children: [
-                demoButton('Red', 'High', Colors.red),
-                demoButton('Yellow', 'Medium', Colors.amber),
-                demoButton('Green', 'Low', Colors.green),
-              ],
-            ),
-
-            const SizedBox(height: 25),
-
-            // RISK SCORE
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Risk Score',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: AppColors.darkPurple,
-                    ),
-                  ),
-
-                  SizedBox(height: 10),
-
-                  Text(
-                    'Not available yet. AI analysis is not connected.',
-                    style: TextStyle(
-                      color: AppColors.textGrey,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 18),
-
-            // ANALYSIS DETAILS
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: const Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Security Insights',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: AppColors.darkPurple,
-                    ),
-                  ),
-
-                  SizedBox(height: 10),
-
-                  Text(
-                    'No security insights are available yet. '
-                    'Connect the AI analysis service to receive '
-                    'suspicious signals and safety recommendations.',
-                    style: TextStyle(
-                      color: AppColors.textGrey,
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.popUntil(
-                    context,
-                    (route) => route.isFirst,
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+            if (result.redFlags.isNotEmpty)
+              sectionCard(
+                title: 'Warning Signs',
+                child: Column(
+                  children: result.redFlags
+                      .map((f) => flagTile(
+                            f,
+                            severityColor(f.severity),
+                            Icons.warning_amber_rounded,
+                          ))
+                      .toList(),
                 ),
-                child: const Text(
-                  'Back to Home',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+              ),
+
+            if (result.greenFlags.isNotEmpty)
+              sectionCard(
+                title: 'Positive Signs',
+                child: Column(
+                  children: result.greenFlags
+                      .map((f) => flagTile(
+                            f,
+                            Colors.green,
+                            Icons.check_circle_outline_rounded,
+                          ))
+                      .toList(),
+                ),
+              ),
+
+            if (result.questionsForSeller.isNotEmpty)
+              sectionCard(
+                title: 'Ask the Seller',
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: result.questionsForSeller
+                      .map(
+                        (q) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.help_outline_rounded,
+                                size: 20,
+                                color: AppColors.primary,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  q,
+                                  style: const TextStyle(
+                                    color: AppColors.textGrey,
+                                    height: 1.4,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+
+            if (result.safeAdvice.isNotEmpty)
+              sectionCard(
+                title: 'Our Advice',
+                borderColor: activeColor.withValues(alpha: 0.5),
+                child: Text(
+                  result.safeAdvice,
+                  style: const TextStyle(
+                    color: AppColors.darkPurple,
+                    height: 1.5,
                   ),
                 ),
               ),
-            ),
 
+            const SizedBox(height: 7),
+            paymentButton(),
+            const SizedBox(height: 14),
+
+            TextButton(
+              onPressed: () {
+                Navigator.popUntil(context, (route) => route.isFirst);
+              },
+              child: const Text(
+                'Back to Home',
+                style: TextStyle(
+                  color: AppColors.darkPurple,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
             const SizedBox(height: 15),
           ],
         ),
