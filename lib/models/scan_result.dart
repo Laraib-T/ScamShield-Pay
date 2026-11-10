@@ -1,4 +1,3 @@
-
 class ScanResult {
   final int riskScore;
   final String riskLevel;

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -175,10 +174,7 @@ class _ResultsScreenState extends State<ResultsScreen>
             const Text(
               'Preview Mode: This is not an actual AI assessment.',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppColors.textGrey,
-                fontSize: 12,
-              ),
+              style: TextStyle(color: AppColors.textGrey, fontSize: 12),
             ),
 
             const SizedBox(height: 25),
@@ -231,9 +227,7 @@ class _ResultsScreenState extends State<ResultsScreen>
 
                   Text(
                     'Not available yet. AI analysis is not connected.',
-                    style: TextStyle(
-                      color: AppColors.textGrey,
-                    ),
+                    style: TextStyle(color: AppColors.textGrey),
                   ),
                 ],
               ),
@@ -267,10 +261,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                     'No security insights are available yet. '
                     'Connect the AI analysis service to receive '
                     'suspicious signals and safety recommendations.',
-                    style: TextStyle(
-                      color: AppColors.textGrey,
-                      height: 1.5,
-                    ),
+                    style: TextStyle(color: AppColors.textGrey, height: 1.5),
                   ),
                 ],
               ),
@@ -283,10 +274,7 @@ class _ResultsScreenState extends State<ResultsScreen>
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.popUntil(
-                    context,
-                    (route) => route.isFirst,
-                  );
+                  Navigator.popUntil(context, (route) => route.isFirst);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

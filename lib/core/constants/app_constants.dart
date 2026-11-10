@@ -1,4 +1,3 @@
-
 class AppConstants {
   static const String appName = 'ScamShield Pay';
   static const String tagline = 'Think Before You Pay.';

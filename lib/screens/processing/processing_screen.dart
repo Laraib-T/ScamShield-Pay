@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -25,9 +24,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (context) => const ResultsScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const ResultsScreen()),
     );
   }
 
@@ -79,10 +76,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
                 const Text(
                   'Please wait while we prepare your security report.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: AppColors.textGrey,
-                  ),
+                  style: TextStyle(fontSize: 14, color: AppColors.textGrey),
                 ),
 
                 const SizedBox(height: 25),
@@ -90,10 +84,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
                 const Text(
                   'Preview Mode: Live AI analysis is not connected yet.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textGrey,
-                  ),
+                  style: TextStyle(fontSize: 12, color: AppColors.textGrey),
                 ),
               ],
             ),
