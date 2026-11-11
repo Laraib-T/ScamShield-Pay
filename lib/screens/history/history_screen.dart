@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -9,70 +8,46 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? Colors.white : AppColors.darkPurple;
+    final subtitleColor = isDark ? Colors.white70 : AppColors.textGrey;
+    final cardColor = Theme.of(context).colorScheme.surface;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
-
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-        automaticallyImplyLeading: true,
-        iconTheme: const IconThemeData(
-          color: AppColors.darkPurple,
-        ),
-        title: const Text(
+        title: Text(
           'Scan History',
-          style: TextStyle(
-            color: AppColors.darkPurple,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+          style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
         ),
+        iconTheme: IconThemeData(color: textColor),
       ),
-
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(22),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
-
-            // HISTORY SUMMARY
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    AppColors.primary,
-                    AppColors.purple,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
+                gradient: AppColors.primaryGradient,
                 borderRadius: BorderRadius.circular(22),
               ),
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.history_rounded,
-                    color: Colors.white,
-                    size: 32,
-                  ),
-
-                  SizedBox(height: 15),
-
                   Text(
                     'Your Scan Activity',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 19,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
-                  SizedBox(height: 8),
-
+                  SizedBox(height: 18),
                   Text(
                     '0 Total Scans',
                     style: TextStyle(
@@ -81,105 +56,87 @@ class HistoryScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-
-                  SizedBox(height: 5),
-
+                  SizedBox(height: 6),
                   Text(
                     'Your previous scans will be saved here.',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 13,
-                    ),
+                    style: TextStyle(color: Colors.white70),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 28),
-
-            const Text(
+            const SizedBox(height: 30),
+            Text(
               'Recent Activity',
               style: TextStyle(
-                fontSize: 19,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkPurple,
+                color: textColor,
               ),
             ),
-
-            const SizedBox(height: 20),
-
-            // EMPTY STATE
+            const SizedBox(height: 15),
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 22,
-                vertical: 35,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 35),
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(22),
+                color: cardColor,
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Column(
                 children: [
                   Container(
-                    height: 100,
-                    width: 100,
-                    decoration: const BoxDecoration(
-                      color: AppColors.lavender,
+                    height: 85,
+                    width: 85,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? const Color(0xFF493052)
+                          : AppColors.lavender,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
                       Icons.manage_search_rounded,
-                      size: 55,
-                      color: AppColors.purple,
+                      size: 45,
+                      color: AppColors.softPurple,
                     ),
                   ),
-
-                  const SizedBox(height: 22),
-
-                  const Text(
+                  const SizedBox(height: 18),
+                  Text(
                     'No Scan History Yet',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.darkPurple,
+                      color: textColor,
                     ),
                   ),
-
                   const SizedBox(height: 10),
-
-                  const Text(
-                    'Your previous payment, seller and '
-                    'link safety analyses will appear here '
-                    'once scan history is connected.',
+                  Text(
+                    'Your previous payment, seller and link '
+                    'analyses will appear here once history '
+                    'is connected.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 14,
+                      color: subtitleColor,
+                      fontSize: 13,
                       height: 1.5,
-                      color: AppColors.textGrey,
                     ),
                   ),
-
                   const SizedBox(height: 25),
-
                   SizedBox(
                     width: double.infinity,
-                    height: 50,
                     child: ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const AnalyzeScreen(),
+                            builder: (context) => const AnalyzeScreen(),
                           ),
                         );
                       },
                       icon: const Icon(Icons.search),
                       label: const Text('Start New Scan'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primary,
+                        backgroundColor: AppColors.purple,
                         foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -189,16 +146,12 @@ class HistoryScreen extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 20),
-
-            const Center(
+            Center(
               child: Text(
                 'Scan history storage will be available soon.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textGrey,
-                ),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, color: subtitleColor),
               ),
             ),
           ],

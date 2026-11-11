@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -15,9 +14,7 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Logout'),
-        content: const Text(
-          'Are you sure you want to logout?',
-        ),
+        content: const Text('Are you sure you want to logout?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -43,9 +40,7 @@ class ProfileScreen extends StatelessWidget {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (context) => const WelcomeScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const WelcomeScreen()),
       (route) => false,
     );
   }
@@ -53,119 +48,99 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final textColor = isDark ? Colors.white : AppColors.darkPurple;
+    final subtitleColor = isDark ? Colors.white70 : AppColors.textGrey;
+    final cardColor = Theme.of(context).colorScheme.surface;
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: AppColors.background,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0,
-
-        // BACK BUTTON
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_rounded,
-            color: AppColors.darkPurple,
-            size: 25,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          icon: Icon(Icons.arrow_back_rounded, color: textColor, size: 25),
+          onPressed: () => Navigator.pop(context),
         ),
-
-        title: const Text(
+        title: Text(
           'My Profile',
           style: TextStyle(
-            color: AppColors.darkPurple,
+            color: textColor,
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
             const SizedBox(height: 25),
-
-            // PROFILE IMAGE
             Container(
               height: 115,
               width: 115,
-              decoration: const BoxDecoration(
-                color: AppColors.lavender,
+              decoration: BoxDecoration(
+                color: isDark ? const Color(0xFF493052) : AppColors.lavender,
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.person_rounded,
                 size: 70,
-                color: AppColors.purple,
+                color: AppColors.softPurple,
               ),
             ),
-
             const SizedBox(height: 18),
-
-            // USER NAME
             Text(
               user?.displayName?.isNotEmpty == true
                   ? user!.displayName!
                   : 'User',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 23,
                 fontWeight: FontWeight.bold,
-                color: AppColors.darkPurple,
+                color: textColor,
               ),
             ),
-
             const SizedBox(height: 8),
-
-            // USER EMAIL
             Text(
               user?.email ?? 'No email available',
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 14,
-                color: AppColors.textGrey,
-              ),
+              style: TextStyle(fontSize: 14, color: subtitleColor),
             ),
-
             const SizedBox(height: 30),
-
-            // ACCOUNT INFORMATION
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Account Information',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.darkPurple,
+                      color: textColor,
                     ),
                   ),
-
                   const SizedBox(height: 18),
-
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(
                       Icons.email_outlined,
-                      color: AppColors.purple,
+                      color: AppColors.softPurple,
                     ),
-                    title: const Text('Email Verification'),
+                    title: Text(
+                      'Email Verification',
+                      style: TextStyle(color: textColor),
+                    ),
                     subtitle: Text(
-                      user?.emailVerified == true
-                          ? 'Verified'
-                          : 'Not verified',
+                      user?.emailVerified == true ? 'Verified' : 'Not verified',
+                      style: TextStyle(color: subtitleColor),
                     ),
                     trailing: Icon(
                       user?.emailVerified == true
@@ -176,28 +151,29 @@ class ProfileScreen extends StatelessWidget {
                           : Colors.orange,
                     ),
                   ),
-
-                  const Divider(),
-
-                  const ListTile(
+                  Divider(color: subtitleColor.withValues(alpha: 0.2)),
+                  ListTile(
                     contentPadding: EdgeInsets.zero,
-                    leading: Icon(
+                    leading: const Icon(
                       Icons.security_rounded,
-                      color: AppColors.purple,
+                      color: AppColors.softPurple,
                     ),
-                    title: Text('Account Status'),
-                    subtitle: Text('Firebase Authentication'),
+                    title: Text(
+                      'Account Status',
+                      style: TextStyle(color: textColor),
+                    ),
+                    subtitle: Text(
+                      'Firebase Authentication',
+                      style: TextStyle(color: subtitleColor),
+                    ),
                   ),
                 ],
               ),
             ),
-
             const SizedBox(height: 18),
-
-            // SETTINGS
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: cardColor,
                 borderRadius: BorderRadius.circular(18),
               ),
               child: ListTile(
@@ -206,35 +182,34 @@ class ProfileScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const SettingsScreen(),
+                      builder: (context) => const SettingsScreen(),
                     ),
                   );
                 },
                 leading: const Icon(
                   Icons.settings_outlined,
-                  color: AppColors.purple,
+                  color: AppColors.softPurple,
                   size: 28,
                 ),
-                title: const Text(
+                title: Text(
                   'Settings',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
+                    color: textColor,
                   ),
                 ),
-                subtitle: const Text(
+                subtitle: Text(
                   'Privacy, support and app information',
+                  style: TextStyle(color: subtitleColor),
                 ),
-                trailing: const Icon(
+                trailing: Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 16,
+                  color: subtitleColor,
                 ),
               ),
             ),
-
             const SizedBox(height: 30),
-
-            // LOGOUT
             SizedBox(
               width: double.infinity,
               height: 53,
@@ -243,10 +218,7 @@ class ProfileScreen extends StatelessWidget {
                 icon: const Icon(Icons.logout),
                 label: const Text(
                   'Logout',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.purple,
@@ -257,7 +229,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 20),
           ],
         ),

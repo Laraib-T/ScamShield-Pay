@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class AppColors {
@@ -23,19 +22,13 @@ class AppColors {
   static const Color textGrey = Color(0xFF806C87);
 
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [
-      Color(0xFF9B4BA1),
-      Color(0xFF61226D),
-    ],
+    colors: [Color(0xFF9B4BA1), Color(0xFF61226D)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const LinearGradient backgroundGradient = LinearGradient(
-    colors: [
-      Color(0xFFFFF7FB),
-      Color(0xFFF1E3FA),
-    ],
+    colors: [Color(0xFFFFF7FB), Color(0xFFF1E3FA)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );

@@ -1,4 +1,3 @@
-
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -15,11 +14,9 @@ class AnalyzeScreen extends StatefulWidget {
 }
 
 class _AnalyzeScreenState extends State<AnalyzeScreen> {
-  final TextEditingController linkController =
-      TextEditingController();
+  final TextEditingController linkController = TextEditingController();
 
-  final TextEditingController detailsController =
-      TextEditingController();
+  final TextEditingController detailsController = TextEditingController();
 
   final ImagePicker picker = ImagePicker();
 
@@ -119,15 +116,10 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(22),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
         title: const Text(
           'Ready for Analysis?',
-          style: TextStyle(
-            color: darkPurple,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: darkPurple, fontWeight: FontWeight.bold),
         ),
         content: Text(
           'You have provided: ${inputs.join(', ')}.\n\n'
@@ -138,10 +130,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             onPressed: () {
               Navigator.pop(dialogContext);
             },
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey),
-            ),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
@@ -173,10 +162,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             },
             child: const Text(
               'Continue',
-              style: TextStyle(
-                color: purple,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(color: purple, fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -221,10 +207,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             onPressed: clearAll,
             child: const Text(
               'Clear',
-              style: TextStyle(
-                color: purple,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: purple, fontWeight: FontWeight.w600),
             ),
           ),
         ],
@@ -258,10 +241,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFF0DDF3),
-                          Color(0xFFFFE9EF),
-                        ],
+                        colors: [Color(0xFFF0DDF3), Color(0xFFFFE9EF)],
                       ),
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -324,10 +304,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                         fontSize: 13,
                         color: Colors.grey,
                       ),
-                      prefixIcon: const Icon(
-                        Icons.link_rounded,
-                        color: purple,
-                      ),
+                      prefixIcon: const Icon(Icons.link_rounded, color: purple),
                       filled: true,
                       fillColor: Colors.white,
                       suffixIcon: IconButton(
@@ -380,10 +357,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
 
                   const Text(
                     'Describe the seller, product or payment request.',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
 
                   const SizedBox(height: 10),
@@ -419,19 +393,12 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: lightPurple,
-                          width: 1.5,
-                        ),
+                        border: Border.all(color: lightPurple, width: 1.5),
                       ),
                       child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.image_rounded,
-                            color: purple,
-                            size: 28,
-                          ),
+                          Icon(Icons.image_rounded, color: purple, size: 28),
                           SizedBox(width: 12),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -509,10 +476,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFFA34BA8),
-                            Color(0xFF672274),
-                          ],
+                          colors: [Color(0xFFA34BA8), Color(0xFF672274)],
                         ),
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
@@ -559,11 +523,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.shield_rounded,
-                        color: darkPurple,
-                        size: 17,
-                      ),
+                      Icon(Icons.shield_rounded, color: darkPurple, size: 17),
                       SizedBox(width: 7),
                       Text(
                         'Your data is secure & private',

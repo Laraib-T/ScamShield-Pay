@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -24,25 +23,28 @@ class HomeScreen extends StatelessWidget {
   void openHistory(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const HistoryScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const HistoryScreen()),
     );
   }
 
   void openProfile(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => const ProfileScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const ProfileScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    final backgroundColor = Theme.of(context).scaffoldBackgroundColor;
+    final cardColor = isDark ? const Color(0xFF261C30) : Colors.white;
+    final headingColor = isDark ? Colors.white : AppColors.darkPurple;
+    final subtitleColor = isDark ? Colors.white70 : AppColors.textGrey;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: backgroundColor,
 
       body: LayoutBuilder(
         builder: (context, constraints) {
@@ -53,7 +55,7 @@ class HomeScreen extends StatelessWidget {
           return Container(
             width: double.infinity,
             height: double.infinity,
-            color: AppColors.background,
+            color: backgroundColor,
             child: Center(
               child: SizedBox(
                 width: appWidth,
@@ -62,14 +64,18 @@ class HomeScreen extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     Container(
-                      decoration: const BoxDecoration(
-                        gradient: AppColors.backgroundGradient,
+                      decoration: BoxDecoration(
+                        gradient: isDark
+                            ? const LinearGradient(
+                                colors: [Color(0xFF17111D), Color(0xFF24182F)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              )
+                            : AppColors.backgroundGradient,
                       ),
                     ),
 
-                    CustomPaint(
-                      painter: HomeBackgroundPainter(),
-                    ),
+                    CustomPaint(painter: HomeBackgroundPainter(isDark: isDark)),
 
                     Positioned(
                       top: 145,
@@ -77,15 +83,15 @@ class HomeScreen extends StatelessWidget {
                       child: Icon(
                         Icons.shield_rounded,
                         size: 230,
-                        color: AppColors.purple.withOpacity(0.07),
+                        color: AppColors.softPurple.withValues(
+                          alpha: isDark ? 0.08 : 0.07,
+                        ),
                       ),
                     ),
 
                     SafeArea(
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(
-                          22, 12, 22, 25,
-                        ),
+                        padding: const EdgeInsets.fromLTRB(22, 12, 22, 25),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -118,13 +124,13 @@ class HomeScreen extends StatelessWidget {
 
                                 const SizedBox(width: 10),
 
-                                const Expanded(
+                                Expanded(
                                   child: Text(
                                     'ScamShield Pay',
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w800,
-                                      color: AppColors.darkPurple,
+                                      color: headingColor,
                                     ),
                                   ),
                                 ),
@@ -136,9 +142,9 @@ class HomeScreen extends StatelessWidget {
                                       'No new notifications',
                                     );
                                   },
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.notifications_none_rounded,
-                                    color: AppColors.darkPurple,
+                                    color: headingColor,
                                     size: 27,
                                   ),
                                 ),
@@ -148,26 +154,26 @@ class HomeScreen extends StatelessWidget {
                             const SizedBox(height: 35),
 
                             // MAIN HEADING
-                            const Text(
+                            Text(
                               'Let AI Check\nBefore You Pay!',
                               style: TextStyle(
                                 fontSize: 30,
                                 height: 1.2,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.darkPurple,
+                                color: headingColor,
                                 letterSpacing: -0.7,
                               ),
                             ),
 
                             const SizedBox(height: 12),
 
-                            const Text(
+                            Text(
                               'Shop smart. Stay protected.\n'
                               'Pay with confidence.',
                               style: TextStyle(
                                 fontSize: 14,
                                 height: 1.5,
-                                color: AppColors.textGrey,
+                                color: subtitleColor,
                               ),
                             ),
 
@@ -178,15 +184,25 @@ class HomeScreen extends StatelessWidget {
                               height: 155,
                               width: double.infinity,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFF9E5F5),
-                                    Color(0xFFEAD7F5),
-                                    Color(0xFFFFEBD9),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                gradient: isDark
+                                    ? const LinearGradient(
+                                        colors: [
+                                          Color(0xFF35233F),
+                                          Color(0xFF493052),
+                                          Color(0xFF33243B),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      )
+                                    : const LinearGradient(
+                                        colors: [
+                                          Color(0xFFF9E5F5),
+                                          Color(0xFFEAD7F5),
+                                          Color(0xFFFFEBD9),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
                                 borderRadius: BorderRadius.circular(25),
                               ),
                               child: Stack(
@@ -197,26 +213,30 @@ class HomeScreen extends StatelessWidget {
                                     right: 20,
                                     child: Icon(
                                       Icons.auto_awesome,
-                                      color: AppColors.purple
-                                          .withOpacity(0.5),
+                                      color: AppColors.softPurple.withValues(
+                                        alpha: 0.7,
+                                      ),
                                       size: 25,
                                     ),
                                   ),
 
-                                  const Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Icon(
                                         Icons.shopping_bag_rounded,
                                         size: 85,
-                                        color: Color(0xFFA66BB9),
+                                        color: isDark
+                                            ? const Color(0xFFC69AD8)
+                                            : const Color(0xFFA66BB9),
                                       ),
-                                      SizedBox(width: 12),
+                                      const SizedBox(width: 12),
                                       Icon(
                                         Icons.verified_user_rounded,
                                         size: 90,
-                                        color: AppColors.darkPurple,
+                                        color: isDark
+                                            ? const Color(0xFFE1B8F0)
+                                            : AppColors.darkPurple,
                                       ),
                                     ],
                                   ),
@@ -226,8 +246,9 @@ class HomeScreen extends StatelessWidget {
                                     left: 18,
                                     child: Icon(
                                       Icons.spa_rounded,
-                                      color: AppColors.purple
-                                          .withOpacity(0.4),
+                                      color: AppColors.softPurple.withValues(
+                                        alpha: 0.6,
+                                      ),
                                       size: 32,
                                     ),
                                   ),
@@ -245,8 +266,7 @@ class HomeScreen extends StatelessWidget {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>
-                                        const AnalyzeScreen(),
+                                    builder: (context) => const AnalyzeScreen(),
                                   ),
                                 );
                               },
@@ -261,6 +281,9 @@ class HomeScreen extends StatelessWidget {
                                   child: optionCard(
                                     icon: Icons.link_rounded,
                                     title: 'Paste Listing /\nPayment Link',
+                                    isDark: isDark,
+                                    cardColor: cardColor,
+                                    textColor: headingColor,
                                     onTap: () {
                                       Navigator.push(
                                         context,
@@ -279,6 +302,9 @@ class HomeScreen extends StatelessWidget {
                                   child: optionCard(
                                     icon: Icons.image_rounded,
                                     title: 'Upload\nScreenshot',
+                                    isDark: isDark,
+                                    cardColor: cardColor,
+                                    textColor: headingColor,
                                     onTap: () {
                                       Navigator.push(
                                         context,
@@ -297,15 +323,14 @@ class HomeScreen extends StatelessWidget {
 
                             // RECENT SCANS HEADER
                             Row(
-                              mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
+                                Text(
                                   'Recent Scans',
                                   style: TextStyle(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.darkPurple,
+                                    color: headingColor,
                                   ),
                                 ),
 
@@ -316,7 +341,7 @@ class HomeScreen extends StatelessWidget {
                                   child: const Text(
                                     'View All  ›',
                                     style: TextStyle(
-                                      color: AppColors.purple,
+                                      color: AppColors.softPurple,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -331,30 +356,33 @@ class HomeScreen extends StatelessWidget {
                               width: double.infinity,
                               padding: const EdgeInsets.all(17),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.95),
+                                color: cardColor,
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors.purple
-                                        .withOpacity(0.08),
+                                    color: AppColors.purple.withValues(
+                                      alpha: isDark ? 0.03 : 0.08,
+                                    ),
                                     blurRadius: 15,
                                     offset: const Offset(0, 5),
                                   ),
                                 ],
                               ),
-                              child: const Row(
+                              child: Row(
                                 children: [
                                   CircleAvatar(
                                     radius: 27,
-                                    backgroundColor: AppColors.lavender,
-                                    child: Icon(
+                                    backgroundColor: isDark
+                                        ? const Color(0xFF493052)
+                                        : AppColors.lavender,
+                                    child: const Icon(
                                       Icons.shopping_bag_rounded,
-                                      color: AppColors.purple,
+                                      color: AppColors.softPurple,
                                       size: 28,
                                     ),
                                   ),
 
-                                  SizedBox(width: 12),
+                                  const SizedBox(width: 12),
 
                                   Expanded(
                                     child: Column(
@@ -365,17 +393,17 @@ class HomeScreen extends StatelessWidget {
                                           'No scans yet',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            color: AppColors.darkPurple,
+                                            color: headingColor,
                                           ),
                                         ),
 
-                                        SizedBox(height: 5),
+                                        const SizedBox(height: 5),
 
                                         Text(
                                           'Your recent scans will appear here.',
                                           style: TextStyle(
                                             fontSize: 12,
-                                            color: AppColors.textGrey,
+                                            color: subtitleColor,
                                           ),
                                         ),
                                       ],
@@ -419,8 +447,7 @@ class HomeScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                                const AnalyzeScreen(),
+                            builder: (context) => const AnalyzeScreen(),
                           ),
                         );
                       } else if (index == 2) {
@@ -443,6 +470,9 @@ class HomeScreen extends StatelessWidget {
   Widget optionCard({
     required IconData icon,
     required String title,
+    required bool isDark,
+    required Color cardColor,
+    required Color textColor,
     required VoidCallback onTap,
   }) {
     return GestureDetector(
@@ -451,11 +481,11 @@ class HomeScreen extends StatelessWidget {
         height: 125,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.96),
+          color: cardColor,
           borderRadius: BorderRadius.circular(22),
           boxShadow: [
             BoxShadow(
-              color: AppColors.purple.withOpacity(0.09),
+              color: AppColors.purple.withValues(alpha: isDark ? 0.03 : 0.09),
               blurRadius: 14,
               offset: const Offset(0, 5),
             ),
@@ -464,19 +494,15 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 32,
-              color: AppColors.purple,
-            ),
+            Icon(icon, size: 32, color: AppColors.softPurple),
 
             const SizedBox(height: 12),
 
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textDark,
+              style: TextStyle(
+                color: textColor,
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
                 height: 1.4,
@@ -491,31 +517,25 @@ class HomeScreen extends StatelessWidget {
 
 // CURVED BACKGROUND PAINTER
 class HomeBackgroundPainter extends CustomPainter {
+  final bool isDark;
+
+  HomeBackgroundPainter({this.isDark = false});
+
   @override
   void paint(Canvas canvas, Size size) {
     final pinkPaint = Paint()
-      ..color = const Color(0x30E8B6E9)
+      ..color = isDark ? const Color(0x183F2850) : const Color(0x30E8B6E9)
       ..style = PaintingStyle.fill;
 
     final purplePaint = Paint()
-      ..color = const Color(0x35C9A3E5)
+      ..color = isDark ? const Color(0x203B2850) : const Color(0x35C9A3E5)
       ..style = PaintingStyle.fill;
 
     final path1 = Path()
       ..moveTo(0, 0)
       ..lineTo(size.width * 0.65, 0)
-      ..quadraticBezierTo(
-        size.width * 0.48,
-        70,
-        size.width * 0.18,
-        95,
-      )
-      ..quadraticBezierTo(
-        size.width * 0.05,
-        105,
-        0,
-        155,
-      )
+      ..quadraticBezierTo(size.width * 0.48, 70, size.width * 0.18, 95)
+      ..quadraticBezierTo(size.width * 0.05, 105, 0, 155)
       ..close();
 
     final path2 = Path()
@@ -535,6 +555,6 @@ class HomeBackgroundPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant HomeBackgroundPainter oldDelegate) {
-    return false;
+    return oldDelegate.isDark != isDark;
   }
 }

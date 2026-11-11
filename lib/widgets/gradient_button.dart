@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+
 import '../core/theme/app_colors.dart';
 
 class GradientButton extends StatelessWidget {
@@ -24,7 +24,7 @@ class GradientButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: AppColors.purple.withOpacity(0.25),
+            color: AppColors.purple.withValues(alpha: 0.25),
             blurRadius: 12,
             offset: const Offset(0, 5),
           ),
@@ -34,6 +34,7 @@ class GradientButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
