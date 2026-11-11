@@ -1,4 +1,3 @@
-
 require("dotenv").config();
 
 const express = require("express");
@@ -8,6 +7,18 @@ const app = express();
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
+
+// Har request ka log: kab aayi, kitni der lagi, kya status gaya
+app.use((req, res, next) => {
+    const start = Date.now();
+    console.log(`--> ${req.method} ${req.url}`);
+    res.on("finish", () => {
+        console.log(
+            `<-- ${req.method} ${req.url} ${res.statusCode} (${Date.now() - start} ms)`
+        );
+    });
+    next();
+});
 
 // Home / Health Check
 app.get("/", (req, res) => {

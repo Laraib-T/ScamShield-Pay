@@ -1,11 +1,15 @@
-
 const aiClientPromise = import("@google/genai").then(({ GoogleGenAI }) => {
     return new GoogleGenAI({
         apiKey: process.env.GEMINI_API_KEY
     });
 });
 
-const MODEL = "gemini-3.8-flash";
+const PRIMARY_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const MAX_FALLBACKS = 3;
+const TIMEOUT_MS = 15000;
+const STICKY_MS = 5 * 60 * 1000;
+// In errors par agle model ko try karte hain
+const NEXT_MODEL_STATUSES = [404, 429, 500, 502, 503, 504];
 
 const SYSTEM_PROMPT = `
 You are ScamShield, an expert at detecting online shopping scams.
@@ -90,10 +94,168 @@ function extractJson(raw) {
     return JSON.parse(cleaned.slice(start, end + 1));
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function withTimeout(promise, ms) {
+    let timer;
+
+    const timeout = new Promise((_, reject) => {
+        timer = setTimeout(() => {
+            const err = new Error(`Gemini timed out after ${ms} ms`);
+            err.status = 504;
+            reject(err);
+        }, ms);
+    });
+
+    return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+}
+
+// ---------- Backup models khud dhoondhna ----------
+
+function versionOf(name) {
+    const m = name.match(/^gemini-(\d+(?:\.\d+)?)/);
+    return m ? parseFloat(m[1]) : 0;
+}
+
+async function discoverFallbacks(ai) {
+    try {
+        const found = [];
+
+        for await (const m of await ai.models.list()) {
+            const name = String(m.name || "").replace("models/", "");
+
+            const isTextFlash =
+                /^gemini-\d/.test(name) &&
+                /flash/i.test(name) &&
+                !/image|tts|live|embed|audio|robotics|computer|native|exp|vision|thinking/i.test(name);
+
+            if (isTextFlash && name !== PRIMARY_MODEL) {
+                found.push(name);
+            }
+        }
+
+        // Naya version pehle, "lite" baad me
+        found.sort((a, b) => {
+            const diff = versionOf(b) - versionOf(a);
+            if (diff !== 0) return diff;
+            return /lite/i.test(a) - /lite/i.test(b);
+        });
+
+        const picked = found.slice(0, MAX_FALLBACKS);
+        console.log(`Gemini primary: ${PRIMARY_MODEL} | fallbacks: ${picked.join(", ") || "none"}`);
+        return picked;
+    } catch (e) {
+        console.warn(`Could not list Gemini models: ${String(e.message).slice(0, 100)}`);
+        return [];
+    }
+}
+
+// Server start hote hi list tayyar kar lo, taake pehli request tez rahe
+const fallbackModelsPromise = aiClientPromise.then(discoverFallbacks);
+
+let lastGood = null;
+let lastGoodAt = 0;
+
+async function modelOrder() {
+    const fallbacks = await fallbackModelsPromise;
+    const all = [PRIMARY_MODEL, ...fallbacks];
+
+    let order = all;
+
+    if (lastGood && Date.now() - lastGoodAt < STICKY_MS && all.includes(lastGood)) {
+        order = [lastGood, ...all.filter((m) => m !== lastGood)];
+    }
+
+    // Agar sirf ek model hai to usi ko do baar try karo
+    return order.length === 1 ? [order[0], order[0]] : order;
+}
+
+function configFor(model) {
+    const config = {
+        systemInstruction: SYSTEM_PROMPT,
+        responseMimeType: "application/json",
+        maxOutputTokens: 2048
+    };
+
+    if (/^gemini-3/.test(model)) {
+        config.thinkingConfig = { thinkingLevel: "low" };
+    } else if (/^gemini-2\.5/.test(model)) {
+        config.thinkingConfig = { thinkingBudget: 0 };
+    }
+
+    return config;
+}
+
+// Model badalte hue jawab ka parse kiya hua JSON wapas deta hai
+async function generateWithFallback(ai, parts) {
+    const models = await modelOrder();
+    let lastError;
+
+    for (let i = 0; i < models.length; i++) {
+        const model = models[i];
+        const started = Date.now();
+
+        try {
+            console.log(`Gemini [${model}] started`);
+
+            const response = await withTimeout(
+                ai.models.generateContent({
+                    model,
+                    contents: [{ role: "user", parts }],
+                    config: configFor(model)
+                }),
+                TIMEOUT_MS
+            );
+
+            const raw = response.text || "";
+
+            if (!raw.trim()) {
+                const err = new Error("Gemini returned empty text");
+                err.status = 502;
+                throw err;
+            }
+
+            let parsed;
+            try {
+                parsed = extractJson(raw);
+            } catch (parseErr) {
+                const err = new Error("Gemini returned invalid JSON");
+                err.status = 502;
+                throw err;
+            }
+
+            console.log(`Gemini [${model}] ok in ${Date.now() - started} ms`);
+            lastGood = model;
+            lastGoodAt = Date.now();
+
+            return { result: parsed, model };
+        } catch (e) {
+            lastError = e;
+
+            console.warn(
+                `Gemini [${model}] failed after ${Date.now() - started} ms: ` +
+                `status=${e.status} ${String(e.message).slice(0, 100)}`
+            );
+
+            // Key ya request ka masla har model par wahi rahega, isliye ruk jao
+            if (!NEXT_MODEL_STATUSES.includes(e.status)) {
+                throw e;
+            }
+
+            if (i < models.length - 1) {
+                console.log("Switching to the next model...");
+                await sleep(300);
+            }
+        }
+    }
+
+    throw lastError;
+}
+
 async function analyzeListing({ text, imageBase64, mediaType }) {
     const ai = await aiClientPromise;
 
-    const contents = [];
+    const parts = [];
 
     if (imageBase64) {
         const cleanBase64 = imageBase64.replace(
@@ -101,7 +263,7 @@ async function analyzeListing({ text, imageBase64, mediaType }) {
             ""
         );
 
-        contents.push({
+        parts.push({
             inlineData: {
                 mimeType: mediaType || "image/jpeg",
                 data: cleanBase64
@@ -109,30 +271,13 @@ async function analyzeListing({ text, imageBase64, mediaType }) {
         });
     }
 
-    contents.push({
+    parts.push({
         text: text && text.trim()
             ? `Analyze this seller listing or chat:\n\n${text}`
             : "Analyze the seller listing or chat shown in this screenshot."
     });
 
-    const response = await ai.models.generateContent({
-        model: MODEL,
-        contents: [{ role: "user", parts: contents }],
-        config: {
-            systemInstruction: SYSTEM_PROMPT,
-            responseMimeType: "application/json",
-            maxOutputTokens: 2048,
-            thinkingConfig: { thinkingBudget: 0 }
-        }
-    });
-
-    const raw = response.text || "";
-
-    if (!raw.trim()) {
-        throw new Error("Gemini returned empty text");
-    }
-
-    const result = extractJson(raw);
+    const { result, model } = await generateWithFallback(ai, parts);
 
     let score = Math.round(Number(result.trust_score));
 
@@ -160,7 +305,8 @@ async function analyzeListing({ text, imageBase64, mediaType }) {
         green_flags: result.green_flags || [],
         questions_for_seller: result.questions_for_seller || [],
         safe_advice: result.safe_advice || "",
-        safe_advice_ur: result.safe_advice_ur || ""
+        safe_advice_ur: result.safe_advice_ur || "",
+        model_used: model
     };
 }
 
