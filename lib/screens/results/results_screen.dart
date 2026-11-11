@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../home/home_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
   const ResultsScreen({super.key});
@@ -99,7 +100,6 @@ class _ResultsScreenState extends State<ResultsScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
@@ -113,7 +113,6 @@ class _ResultsScreenState extends State<ResultsScreen>
         ),
         centerTitle: true,
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(22),
         child: Column(
@@ -222,9 +221,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                       color: AppColors.darkPurple,
                     ),
                   ),
-
                   SizedBox(height: 10),
-
                   Text(
                     'Not available yet. AI analysis is not connected.',
                     style: TextStyle(color: AppColors.textGrey),
@@ -254,9 +251,7 @@ class _ResultsScreenState extends State<ResultsScreen>
                       color: AppColors.darkPurple,
                     ),
                   ),
-
                   SizedBox(height: 10),
-
                   Text(
                     'No security insights are available yet. '
                     'Connect the AI analysis service to receive '
@@ -269,12 +264,17 @@ class _ResultsScreenState extends State<ResultsScreen>
 
             const SizedBox(height: 25),
 
+            // BACK TO HOME
             SizedBox(
               width: double.infinity,
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.popUntil(context, (route) => route.isFirst);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    (route) => false,
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
