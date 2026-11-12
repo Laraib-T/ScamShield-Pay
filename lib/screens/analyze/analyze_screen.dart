@@ -1,3 +1,4 @@
+
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -15,9 +16,7 @@ class AnalyzeScreen extends StatefulWidget {
 
 class _AnalyzeScreenState extends State<AnalyzeScreen> {
   final TextEditingController linkController = TextEditingController();
-
   final TextEditingController detailsController = TextEditingController();
-
   final ImagePicker picker = ImagePicker();
 
   XFile? selectedImage;
@@ -29,6 +28,24 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   static const Color purple = Color(0xFF933E9F);
   static const Color lightPurple = Color(0xFFEAD6F0);
   static const Color background = Color(0xFFFFF5FA);
+
+  bool get isDark =>
+      Theme.of(context).brightness == Brightness.dark;
+
+  Color get pageColor =>
+      isDark ? const Color(0xFF17121B) : background;
+
+  Color get cardColor =>
+      isDark ? const Color(0xFF29212F) : Colors.white;
+
+  Color get headingColor =>
+      isDark ? const Color(0xFFF4E8F7) : darkPurple;
+
+  Color get secondaryColor =>
+      isDark ? Colors.white70 : Colors.grey;
+
+  Color get borderColor =>
+      isDark ? const Color(0xFF59445F) : lightPurple;
 
   Future<void> uploadImage() async {
     try {
@@ -89,7 +106,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
 
     if (link.isEmpty && details.isEmpty && imageBytes == null) {
       showMessage(
-        'Please enter details, a payment link or upload a screenshot.',
+        'Please enter details, a product link or upload a screenshot.',
       );
       return;
     }
@@ -102,47 +119,62 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
           (uri.scheme != 'https' && uri.scheme != 'http') ||
           uri.host.isEmpty ||
           uri.host.contains(' ')) {
-        showMessage('Please enter a valid payment link.');
+        showMessage('Please enter a valid product link.');
         return;
       }
     }
 
     final List<String> inputs = [];
 
-    if (link.isNotEmpty) inputs.add('payment link');
+    if (link.isNotEmpty) inputs.add('product link');
     if (details.isNotEmpty) inputs.add('seller details');
     if (imageBytes != null) inputs.add('screenshot');
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
-        title: const Text(
+        backgroundColor: cardColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        title: Text(
           'Ready for Analysis?',
-          style: TextStyle(color: darkPurple, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: headingColor,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Text(
           'You have provided: ${inputs.join(', ')}.\n\n'
           'Continue to the processing screen?',
+          style: TextStyle(color: secondaryColor),
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
             },
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey),
+            ),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
 
               final parts = <String>[];
-              if (link.isNotEmpty) parts.add('Payment/listing link: $link');
+
+              if (link.isNotEmpty) {
+                parts.add('Product link: $link');
+              }
+
               if (details.isNotEmpty) {
                 parts.add('Seller/listing details: $details');
               }
 
               final name = (selectedImage?.name ?? '').toLowerCase();
+
               final mediaType = name.endsWith('.png')
                   ? 'image/png'
                   : name.endsWith('.webp')
@@ -162,10 +194,44 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             },
             child: const Text(
               'Continue',
-              style: TextStyle(color: purple, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: purple,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  InputDecoration inputDecoration({
+    required String hint,
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: TextStyle(
+        fontSize: 13,
+        color: secondaryColor,
+      ),
+      prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
+      filled: true,
+      fillColor: cardColor,
+      counterStyle: TextStyle(color: secondaryColor),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(color: borderColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: const BorderSide(color: purple, width: 1.5),
       ),
     );
   }
@@ -180,23 +246,23 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: background,
+      backgroundColor: pageColor,
 
       appBar: AppBar(
-        backgroundColor: background,
+        backgroundColor: pageColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back_ios_new_rounded,
-            color: darkPurple,
+            color: headingColor,
             size: 21,
           ),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
+        title: Text(
           'Analyze',
           style: TextStyle(
-            color: darkPurple,
+            color: headingColor,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -205,9 +271,9 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
         actions: [
           IconButton(
             tooltip: 'Compare sellers',
-            icon: const Icon(
+            icon: Icon(
               Icons.compare_arrows_rounded,
-              color: darkPurple,
+              color: headingColor,
             ),
             onPressed: () {
               Navigator.push(
@@ -222,7 +288,10 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             onPressed: clearAll,
             child: const Text(
               'Clear',
-              style: TextStyle(color: purple, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: purple,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
         ],
@@ -238,7 +307,8 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
               width: 260,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: lightPurple.withValues(alpha: 0.35),
+                color: (isDark ? purple : lightPurple)
+                    .withValues(alpha: isDark ? 0.12 : 0.35),
               ),
             ),
           ),
@@ -255,17 +325,27 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                     height: 145,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFF0DDF3), Color(0xFFFFE9EF)],
+                      gradient: LinearGradient(
+                        colors: isDark
+                            ? const [
+                                Color(0xFF49304F),
+                                Color(0xFF302333),
+                              ]
+                            : const [
+                                Color(0xFFF0DDF3),
+                                Color(0xFFFFE9EF),
+                              ],
                       ),
                       borderRadius: BorderRadius.circular(25),
                     ),
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.shopping_bag_rounded,
-                          color: Color(0xFF9C60AA),
+                          color: isDark
+                              ? const Color(0xFFD3A4DF)
+                              : const Color(0xFF9C60AA),
                           size: 72,
                         ),
                         Positioned(
@@ -273,13 +353,13 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                           bottom: 22,
                           child: Container(
                             padding: const EdgeInsets.all(10),
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
+                            decoration: BoxDecoration(
+                              color: cardColor,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.link_rounded,
-                              color: darkPurple,
+                              color: headingColor,
                               size: 27,
                             ),
                           ),
@@ -289,7 +369,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                           left: 22,
                           child: Icon(
                             Icons.auto_awesome,
-                            color: purple.withValues(alpha: 0.6),
+                            color: purple.withValues(alpha: 0.7),
                             size: 24,
                           ),
                         ),
@@ -299,10 +379,10 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
 
                   const SizedBox(height: 27),
 
-                  const Text(
-                    'Paste Your Payment Link',
+                  Text(
+                    'Paste Your Product Link',
                     style: TextStyle(
-                      color: darkPurple,
+                      color: headingColor,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -313,15 +393,13 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                   TextField(
                     controller: linkController,
                     keyboardType: TextInputType.url,
-                    decoration: InputDecoration(
-                      hintText: 'https://example.com/product',
-                      hintStyle: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
+                    style: TextStyle(color: headingColor),
+                    decoration: inputDecoration(
+                      hint: 'https://example.com/product',
+                      prefixIcon: const Icon(
+                        Icons.link_rounded,
+                        color: purple,
                       ),
-                      prefixIcon: const Icon(Icons.link_rounded, color: purple),
-                      filled: true,
-                      fillColor: Colors.white,
                       suffixIcon: IconButton(
                         icon: const Icon(
                           Icons.close_rounded,
@@ -331,20 +409,16 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                           linkController.clear();
                         },
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide.none,
-                      ),
                     ),
                   ),
 
                   const SizedBox(height: 19),
 
-                  const Row(
+                  Row(
                     children: [
-                      Expanded(child: Divider()),
+                      const Expanded(child: Divider()),
                       Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        padding: const EdgeInsets.symmetric(horizontal: 15),
                         child: Text(
                           'OR',
                           style: TextStyle(
@@ -353,16 +427,16 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                           ),
                         ),
                       ),
-                      Expanded(child: Divider()),
+                      const Expanded(child: Divider()),
                     ],
                   ),
 
                   const SizedBox(height: 20),
 
-                  const Text(
+                  Text(
                     'Add Listing Details',
                     style: TextStyle(
-                      color: darkPurple,
+                      color: headingColor,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -370,9 +444,12 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
 
                   const SizedBox(height: 5),
 
-                  const Text(
+                  Text(
                     'Describe the seller, product or payment request.',
-                    style: TextStyle(color: Colors.grey, fontSize: 12),
+                    style: TextStyle(
+                      color: secondaryColor,
+                      fontSize: 12,
+                    ),
                   ),
 
                   const SizedBox(height: 10),
@@ -381,18 +458,9 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                     controller: detailsController,
                     maxLines: 4,
                     maxLength: 300,
-                    decoration: InputDecoration(
-                      hintText: 'Describe the product or seller...',
-                      hintStyle: const TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(17),
-                        borderSide: BorderSide.none,
-                      ),
+                    style: TextStyle(color: headingColor),
+                    decoration: inputDecoration(
+                      hint: 'Describe the product or seller...',
                     ),
                   ),
 
@@ -406,15 +474,22 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                       height: 65,
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: cardColor,
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: lightPurple, width: 1.5),
+                        border: Border.all(
+                          color: borderColor,
+                          width: 1.5,
+                        ),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.image_rounded, color: purple, size: 28),
-                          SizedBox(width: 12),
+                          const Icon(
+                            Icons.image_rounded,
+                            color: purple,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 12),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -422,14 +497,14 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                               Text(
                                 'Upload Screenshot',
                                 style: TextStyle(
-                                  color: darkPurple,
+                                  color: headingColor,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               Text(
                                 'JPG, PNG (Max 5MB)',
                                 style: TextStyle(
-                                  color: Colors.grey,
+                                  color: secondaryColor,
                                   fontSize: 11,
                                 ),
                               ),
@@ -451,8 +526,9 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                           height: 155,
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: cardColor,
                             borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: borderColor),
                           ),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
@@ -462,7 +538,6 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                             ),
                           ),
                         ),
-
                         Positioned(
                           top: 10,
                           right: 10,
@@ -491,7 +566,10 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFFA34BA8), Color(0xFF672274)],
+                          colors: [
+                            Color(0xFFA34BA8),
+                            Color(0xFF672274),
+                          ],
                         ),
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
@@ -506,6 +584,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                         onPressed: isLoading ? null : analyzePayment,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.transparent,
+                          disabledBackgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -535,17 +614,24 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
 
                   const SizedBox(height: 17),
 
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.shield_rounded, color: darkPurple, size: 17),
-                      SizedBox(width: 7),
-                      Text(
-                        'Your listing is analyzed by AI. See Settings > Privacy.',
-                        style: TextStyle(
-                          color: darkPurple,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
+                      Icon(
+                        Icons.shield_rounded,
+                        color: headingColor,
+                        size: 17,
+                      ),
+                      const SizedBox(width: 7),
+                      Flexible(
+                        child: Text(
+                          'Your listing is analyzed by AI. See Settings > Privacy.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: headingColor,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],

@@ -1,3 +1,4 @@
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -6,6 +7,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../services/analysis_service.dart';
+import '../../services/history_service.dart';
 import '../results/results_screen.dart';
 
 class ProcessingScreen extends StatefulWidget {
@@ -58,9 +60,11 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
       return 'Cannot reach the ScamShield server. '
           'Please make sure the backend is running and try again.';
     }
+
     if (text.contains('TimeoutException')) {
       return 'The analysis took too long. Please try again.';
     }
+
     return text.replaceFirst('Exception: ', '');
   }
 
@@ -71,14 +75,21 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
     });
 
     stepTimer?.cancel();
-    stepTimer = Timer.periodic(const Duration(milliseconds: 1800), (_) {
-      if (!mounted) return;
-      setState(() => stepIndex = (stepIndex + 1) % steps.length);
-    });
+
+    stepTimer = Timer.periodic(
+      const Duration(milliseconds: 1800),
+      (_) {
+        if (!mounted) return;
+        setState(() {
+          stepIndex = (stepIndex + 1) % steps.length;
+        });
+      },
+    );
 
     try {
-      // Kam az kam 1.5 second loading dikhao taake screen jhalak na jaye
-      final minWait = Future.delayed(const Duration(milliseconds: 1500));
+      final minWait = Future.delayed(
+        const Duration(milliseconds: 1500),
+      );
 
       final result = await AnalysisService.analyze(
         text: widget.text,
@@ -91,7 +102,24 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
       await minWait;
 
       if (!mounted) return;
+
       stepTimer?.cancel();
+
+      // Save successful scan in Firebase
+      try {
+        await HistoryService().saveScan(
+          input: widget.text.trim().isNotEmpty
+              ? widget.text.trim()
+              : widget.imageBytes != null
+                  ? 'Image Scan'
+                  : 'Text Scan',
+          result: result,
+        );
+      } catch (e) {
+        debugPrint('History save failed: $e');
+      }
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
@@ -101,8 +129,12 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
       );
     } catch (e) {
       if (!mounted) return;
+
       stepTimer?.cancel();
-      setState(() => errorMessage = friendlyError(e));
+
+      setState(() {
+        errorMessage = friendlyError(e);
+      });
     }
   }
 
@@ -232,7 +264,9 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(25),
-            child: errorMessage == null ? buildLoading() : buildError(),
+            child: errorMessage == null
+                ? buildLoading()
+                : buildError(),
           ),
         ),
       ),

@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -280,7 +281,7 @@ class HomeScreen extends StatelessWidget {
                                 Expanded(
                                   child: optionCard(
                                     icon: Icons.link_rounded,
-                                    title: 'Paste Listing /\nPayment Link',
+                                    title: 'Paste Product\nLink',
                                     isDark: isDark,
                                     cardColor: cardColor,
                                     textColor: headingColor,
