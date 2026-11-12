@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-import '../../core/theme/app_colors.dart';
+import '../compare/compare_screen.dart';
 import '../processing/processing_screen.dart';
 
 class AnalyzeScreen extends StatefulWidget {
@@ -136,10 +136,27 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
             onPressed: () {
               Navigator.pop(dialogContext);
 
+              final parts = <String>[];
+              if (link.isNotEmpty) parts.add('Payment/listing link: $link');
+              if (details.isNotEmpty) {
+                parts.add('Seller/listing details: $details');
+              }
+
+              final name = (selectedImage?.name ?? '').toLowerCase();
+              final mediaType = name.endsWith('.png')
+                  ? 'image/png'
+                  : name.endsWith('.webp')
+                      ? 'image/webp'
+                      : 'image/jpeg';
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const ProcessingScreen(),
+                  builder: (context) => ProcessingScreen(
+                    text: parts.join('\n'),
+                    imageBytes: imageBytes,
+                    mediaType: mediaType,
+                  ),
                 ),
               );
             },
@@ -186,6 +203,21 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
         ),
         centerTitle: true,
         actions: [
+          IconButton(
+            tooltip: 'Compare sellers',
+            icon: const Icon(
+              Icons.compare_arrows_rounded,
+              color: darkPurple,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CompareScreen(),
+                ),
+              );
+            },
+          ),
           TextButton(
             onPressed: clearAll,
             child: const Text(
@@ -206,7 +238,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
               width: 260,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: lightPurple.withOpacity(0.35),
+                color: lightPurple.withValues(alpha: 0.35),
               ),
             ),
           ),
@@ -257,7 +289,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                           left: 22,
                           child: Icon(
                             Icons.auto_awesome,
-                            color: purple.withOpacity(0.6),
+                            color: purple.withValues(alpha: 0.6),
                             size: 24,
                           ),
                         ),
@@ -464,7 +496,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                         borderRadius: BorderRadius.circular(30),
                         boxShadow: [
                           BoxShadow(
-                            color: purple.withOpacity(0.25),
+                            color: purple.withValues(alpha: 0.25),
                             blurRadius: 12,
                             offset: const Offset(0, 5),
                           ),
@@ -509,7 +541,7 @@ class _AnalyzeScreenState extends State<AnalyzeScreen> {
                       Icon(Icons.shield_rounded, color: darkPurple, size: 17),
                       SizedBox(width: 7),
                       Text(
-                        'Your data is secure & private',
+                        'Your listing is analyzed by AI. See Settings > Privacy.',
                         style: TextStyle(
                           color: darkPurple,
                           fontSize: 11,
