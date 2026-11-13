@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'security_screen.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/theme_controller.dart';
@@ -341,6 +342,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+  
 
   void showInfo(String title, String message) {
     final isDark = Theme.of(context).brightness == Brightness.dark;

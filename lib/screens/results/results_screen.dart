@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../models/scan_result.dart';
+import '../payment/paypal_checkout_screen.dart';
 
 class ResultsScreen extends StatefulWidget {
   final ScanResult result;
@@ -217,13 +218,10 @@ class _ResultsScreenState extends State<ResultsScreen>
     );
   }
 
-  void startPayment() {
-    // Agla step: yahan Braintree/PayPal checkout screen khulegi
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Secure checkout will be connected in the next step.'),
-        behavior: SnackBarBehavior.floating,
-      ),
+    void startPayment() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PaypalCheckoutScreen()),
     );
   }
 
